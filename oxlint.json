@@ -8,5 +8,5 @@
     "react/no-danger": "warn",
     "typescript/no-explicit-any": "warn"
   },
-  "ignore": ["src/mbt.d.ts"]
+  "ignorePatterns": ["src/mbt.d.ts"]
 }
