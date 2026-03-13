@@ -2,3 +2,11 @@ node_modules/
 dist/
 coverage/
 _build/
+
+*.log
+*.tmp
+.DS_Store
+.env
+.idea/
+.vscode/
+*.coverage
