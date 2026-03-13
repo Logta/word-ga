@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import moonbit from "vite-plugin-moonbit";
 
 export default defineConfig({
+  base: "/word-ga/",
   plugins: [
     react(),
     moonbit({
