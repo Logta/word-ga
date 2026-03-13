@@ -1,5 +1,6 @@
 // Whitebox tests for rng.mbt (PCG-64)
 
+///|
 test "init_rng: 同じシードは同じ乱数列を生成する" {
   init_rng(42)
   let v1 = rand_double()
@@ -11,6 +12,7 @@ test "init_rng: 同じシードは同じ乱数列を生成する" {
   assert_eq(v2, v4)
 }
 
+///|
 test "init_rng: 異なるシードは異なる最初の値を生成する" {
   init_rng(1)
   let a = pcg_next32()
@@ -19,6 +21,7 @@ test "init_rng: 異なるシードは異なる最初の値を生成する" {
   assert_eq(a != b, true)
 }
 
+///|
 test "rand_double: 値は[0, 1)の範囲内 (200回)" {
   init_rng(1)
   for _ in 0..<200 {
@@ -28,6 +31,7 @@ test "rand_double: 値は[0, 1)の範囲内 (200回)" {
   }
 }
 
+///|
 test "rand_double: 連続する値が全て同じにならない" {
   init_rng(1)
   let first = rand_double()
@@ -40,6 +44,7 @@ test "rand_double: 連続する値が全て同じにならない" {
   assert_eq(all_same, false)
 }
 
+///|
 test "rand_double: 0.5以上の値が生成される（全域カバー確認）" {
   // バグ時は [0, 0.25) しか生成されないため、このテストで検出できる
   init_rng(1)
@@ -52,6 +57,7 @@ test "rand_double: 0.5以上の値が生成される（全域カバー確認）"
   assert_eq(found_above_half, true)
 }
 
+///|
 test "rand_int: 値は[0, limit)の範囲内 (200回)" {
   init_rng(1)
   let limit = 27
@@ -62,10 +68,11 @@ test "rand_int: 値は[0, limit)の範囲内 (200回)" {
   }
 }
 
+///|
 test "pcg_next32: 出力は非負" {
   init_rng(1)
   for _ in 0..<500 {
-    let v = pcg_next32().land(0x7FFFFFFF)
+    let v = pcg_next32() & 0x7FFFFFFF
     assert_eq(v >= 0, true)
   }
 }

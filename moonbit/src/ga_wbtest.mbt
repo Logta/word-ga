@@ -2,11 +2,13 @@
 
 // ─── crossover ───────────────────────────────────────────────────────────────
 
+///|
 test "crossover: 出力長がp1と同じ" {
   init_rng(1)
   assert_eq(crossover("10101", "01010").length(), 5)
 }
 
+///|
 test "crossover: 各文字はp1かp2のいずれかから" {
   init_rng(1)
   let p1 = "11111"
@@ -21,11 +23,13 @@ test "crossover: 各文字はp1かp2のいずれかから" {
 
 // ─── mutate ──────────────────────────────────────────────────────────────────
 
+///|
 test "mutate: 出力長が入力と同じ" {
   init_rng(1)
   assert_eq(mutate("10101").length(), 5)
 }
 
+///|
 test "mutate: 出力文字が '0' または '1'" {
   init_rng(1)
   for c in mutate("11111") {
@@ -35,6 +39,7 @@ test "mutate: 出力文字が '0' または '1'" {
 
 // ─── evolve ──────────────────────────────────────────────────────────────────
 
+///|
 test "evolve: 出力個体数が入力と同じ (POP_SIZE=30)" {
   init_rng(42)
   let pop = Array::make(30, "00000")
@@ -43,6 +48,7 @@ test "evolve: 出力個体数が入力と同じ (POP_SIZE=30)" {
   assert_eq(parts.length(), 30)
 }
 
+///|
 test "evolve: 各個体の長さがtargetと同じ" {
   init_rng(42)
   let pop = Array::make(30, "00000")
@@ -52,6 +58,7 @@ test "evolve: 各個体の長さがtargetと同じ" {
   }
 }
 
+///|
 test "evolve: 出力文字が '0' または '1'" {
   init_rng(42)
   let pop = Array::make(30, "00000")
@@ -63,6 +70,7 @@ test "evolve: 出力文字が '0' または '1'" {
   }
 }
 
+///|
 test "evolve: pop_size=2でelite_count<2補正ブランチを通る" {
   // ec = floor(2 * 0.4) = 0 < 2 → elite_count = 2 に補正
   init_rng(42)
@@ -75,6 +83,7 @@ test "evolve: pop_size=2でelite_count<2補正ブランチを通る" {
   }
 }
 
+///|
 test "evolve: pop_size=5でelite_count>=2の通常ブランチ" {
   // ec = floor(5 * 0.4) = 2 >= 2 → elite_count = 2 のままelseブランチ
   init_rng(42)
@@ -84,6 +93,7 @@ test "evolve: pop_size=5でelite_count>=2の通常ブランチ" {
   assert_eq(parts.length(), 5)
 }
 
+///|
 test "evolve: 完全一致個体は適応度ソートで先頭に来る" {
   init_rng(42)
   let target = "01010"
@@ -97,6 +107,7 @@ test "evolve: 完全一致個体は適応度ソートで先頭に来る" {
   assert_eq(true, true)
 }
 
+///|
 test "evolve: 複数世代の連続実行で安定動作" {
   init_rng(1)
   let target = "HELLO"

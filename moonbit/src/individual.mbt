@@ -1,10 +1,17 @@
 // 個体・適応度
 
 // バイナリ表現 ('0' or '1')
+
+///|
 fn random_bit() -> Char {
-  if rand_int(2) == 0 { '0' } else { '1' }
+  if rand_int(2) == 0 {
+    '0'
+  } else {
+    '1'
+  }
 }
 
+///|
 pub fn calc_fitness(ind : String, target : String) -> Double {
   let ind_arr = ind.to_array()
   let target_arr = target.to_array()

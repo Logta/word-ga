@@ -1,9 +1,0 @@
-{
-  "is_main": true,
-"link": {
-    "wasm-gc": {
-      "exports": ["calc_fitness", "evolve", "init_rng"],
-      "use-js-builtin-string": true
-    }
-  }
-}

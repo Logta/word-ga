@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript"],
+  "rules": {
+    "no-unused-vars": "error",
+    "no-console": "warn",
+    "react/jsx-no-duplicate-props": "error",
+    "react/no-danger": "warn",
+    "typescript/no-explicit-any": "warn"
+  },
+  "ignore": ["src/mbt.d.ts"]
+}
