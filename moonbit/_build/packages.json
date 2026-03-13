@@ -31,11 +31,6 @@
           "path": "moonbitlang/core/prelude",
           "alias": "prelude",
           "fspath": "/Users/tito/.moon/lib/core/prelude"
-        },
-        {
-          "path": "moonbitlang/core/random",
-          "alias": "random",
-          "fspath": "/Users/tito/.moon/lib/core/random"
         }
       ],
       "wbtest-deps": [

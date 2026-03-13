@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { SimState } from "../types";
 import { initState, stepState } from "../ga/core";
-import { initWasm } from "../ga/wasmBridge";
 
 const DEFAULT_TARGET = "HELLO WORLD";
 
@@ -15,14 +14,8 @@ export interface SimulatorActions {
 }
 
 export function useSimulator(): [SimState, SimulatorActions, boolean] {
-  const [wasmReady, setWasmReady] = useState(false);
   const [state, setState] = useState<SimState>(() => initState(DEFAULT_TARGET));
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Wasm初期化
-  useEffect(() => {
-    initWasm().then(() => setWasmReady(true));
-  }, []);
 
   // 自動実行インターバル管理
   useEffect(() => {
@@ -63,5 +56,5 @@ export function useSimulator(): [SimState, SimulatorActions, boolean] {
   }, []);
 
   const actions: SimulatorActions = { start, pause, stepOnce, reset, setSpeed, applyTarget };
-  return [state, actions, wasmReady];
+  return [state, actions, true];
 }

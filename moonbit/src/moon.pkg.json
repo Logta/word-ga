@@ -1,11 +1,8 @@
 {
   "is_main": true,
-  "import": [
-    { "path": "moonbitlang/core/random", "alias": "random" }
-  ],
-  "link": {
+"link": {
     "wasm-gc": {
-      "exports": ["calc_fitness", "evolve"],
+      "exports": ["calc_fitness", "evolve", "init_rng"],
       "use-js-builtin-string": true
     }
   }
