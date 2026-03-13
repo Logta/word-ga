@@ -30,7 +30,7 @@ export function StatusBar({ generation, bestFit, avgFit, bestInd, target }: Stat
       </div>
       <div>
         <div className="text-gray-500 text-xs mb-0.5">ベスト個体</div>
-        <div className="font-bold tracking-widest text-sm">
+        <div className="font-bold tracking-widest text-sm truncate">
           <GeneDisplay ind={bestInd} target={target} />
         </div>
       </div>

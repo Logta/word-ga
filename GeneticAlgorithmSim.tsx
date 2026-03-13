@@ -314,7 +314,7 @@ export default function GeneticAlgorithmSim() {
         </div>
         <div>
           <div className="text-gray-500 text-xs mb-0.5">ベスト個体</div>
-          <div className="font-bold tracking-widest text-sm">
+          <div className="font-bold tracking-widest text-sm truncate">
             {renderGene(bestInd)}
           </div>
         </div>
@@ -362,11 +362,11 @@ export default function GeneticAlgorithmSim() {
                     {isElite ? "★" : "·"}
                   </span>
                   {/* 遺伝子文字列 */}
-                  <span className="font-mono shrink-0 tracking-wider w-[7.5rem]">
+                  <div className="font-mono tracking-wider flex-1 min-w-0 truncate mr-2">
                     {renderGene(ind)}
-                  </span>
+                  </div>
                   {/* 適応度バー */}
-                  <div className="flex-1 bg-gray-600 rounded-full h-1.5">
+                  <div className="w-16 sm:w-24 bg-gray-600 rounded-full h-1.5 shrink-0">
                     <div
                       className={`h-1.5 rounded-full transition-all duration-150 ${fitBarColor(fit, isElite)}`}
                       style={{ width: `${fit * 100}%` }}

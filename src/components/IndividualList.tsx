@@ -44,10 +44,10 @@ export function IndividualList({ sorted, target }: IndividualListProps) {
               <span className={isElite ? "text-yellow-400" : "text-gray-700"}>
                 {isElite ? "★" : "·"}
               </span>
-              <span className="font-mono tracking-wider flex-1 min-w-0 truncate mr-2">
+              <div className="font-mono tracking-wider flex-1 min-w-0 truncate mr-2">
                 <GeneDisplay ind={ind} target={target} />
-              </span>
-              <div className="w-24 bg-gray-600 rounded-full h-1.5 shrink-0">
+              </div>
+              <div className="w-16 sm:w-24 bg-gray-600 rounded-full h-1.5 shrink-0">
                 <div
                   className={`h-1.5 rounded-full transition-all duration-150 ${fitBarColor(fit, isElite)}`}
                   style={{ width: `${fit * 100}%` }}
