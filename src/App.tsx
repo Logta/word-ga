@@ -8,7 +8,7 @@ import { IndividualList } from "./components/IndividualList";
 import { ConvergenceGraph } from "./components/ConvergenceGraph";
 
 export default function App() {
-  const [state, actions] = useSimulator();
+  const [state, actions, wasmReady] = useSimulator();
   const [targetInput, setTargetInput] = useState(state.target);
 
   const { target, population, generation, history, isRunning, speed, solved } = state;
@@ -39,6 +39,7 @@ export default function App() {
         isRunning={isRunning}
         solved={solved}
         speed={speed}
+        wasmReady={wasmReady}
         onStart={actions.start}
         onPause={actions.pause}
         onStepOnce={actions.stepOnce}

@@ -2,6 +2,7 @@ interface ControlsProps {
   isRunning: boolean;
   solved: boolean;
   speed: number;
+  wasmReady: boolean;
   onStart: () => void;
   onPause: () => void;
   onStepOnce: () => void;
@@ -13,6 +14,7 @@ export function Controls({
   isRunning,
   solved,
   speed,
+  wasmReady,
   onStart,
   onPause,
   onStepOnce,
@@ -24,11 +26,11 @@ export function Controls({
       {!isRunning ? (
         <button
           onClick={onStart}
-          disabled={solved}
+          disabled={!wasmReady || solved}
           className="px-5 py-2 bg-green-700 hover:bg-green-600 rounded font-bold
                      disabled:opacity-40 transition-colors min-w-[90px]"
         >
-          ▶ 開始
+          {wasmReady ? "▶ 開始" : "読込中…"}
         </button>
       ) : (
         <button
@@ -41,14 +43,15 @@ export function Controls({
       )}
       <button
         onClick={onStepOnce}
-        disabled={isRunning || solved}
+        disabled={!wasmReady || isRunning || solved}
         className="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded disabled:opacity-40 transition-colors"
       >
         ⏭ 次の世代
       </button>
       <button
         onClick={onReset}
-        className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded transition-colors"
+        disabled={!wasmReady}
+        className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded disabled:opacity-40 transition-colors"
       >
         ↺ リセット
       </button>

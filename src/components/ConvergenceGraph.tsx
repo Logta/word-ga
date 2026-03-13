@@ -56,8 +56,8 @@ export function ConvergenceGraph({ history }: ConvergenceGraphProps) {
                 borderRadius: "6px",
                 fontSize: "12px",
               }}
-              formatter={(value: number, name: string) => [
-                `${value.toFixed(1)}%`,
+              formatter={(value, name) => [
+                `${Number(value).toFixed(1)}%`,
                 name === "best" ? "最高適応度" : "平均適応度",
               ]}
               labelFormatter={(label) => `第 ${label} 世代`}
