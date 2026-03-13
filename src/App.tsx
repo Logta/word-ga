@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useSimulator } from "./hooks/useSimulator";
-import { calcFitness, sanitize } from "./ga/core";
+import { calcFitness, encode, sanitize } from "./ga/core";
 import { Header } from "./components/Header";
 import { Controls } from "./components/Controls";
 import { StatusBar } from "./components/StatusBar";
@@ -16,7 +16,7 @@ export default function App() {
   const sorted = useMemo(
     () =>
       [...population]
-        .map((ind) => ({ ind, fit: calcFitness(ind, target) }))
+        .map((ind) => ({ ind, fit: calcFitness(ind, encode(target)) }))
         .sort((a, b) => b.fit - a.fit),
     [population, target]
   );

@@ -24,7 +24,7 @@ fn mutate(ind : String) -> String {
   let buf = StringBuilder::new()
   for c in ind {
     if rand_double() < mutation_rate {
-      buf.write_char(random_char())
+      buf.write_char(random_bit())
     } else {
       buf.write_char(c)
     }

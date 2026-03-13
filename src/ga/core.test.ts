@@ -7,6 +7,10 @@ import {
   POP_SIZE,
   MUTATION_RATE,
   ELITE_RATIO,
+  charToBin,
+  binToChar,
+  encode,
+  decode,
 } from "./core";
 
 // wasmBridgeをモック（Wasm不要）
@@ -53,6 +57,51 @@ describe("constants", () => {
   });
 });
 
+// ─── encode / decode ────────────────────────────────────────
+
+describe("encode / decode", () => {
+  it("charToBin('A') === '00000'", () => {
+    expect(charToBin("A")).toBe("00000");
+  });
+
+  it("charToBin('Z') === '11001'", () => {
+    expect(charToBin("Z")).toBe("11001");
+  });
+
+  it("charToBin(' ') === '11010'", () => {
+    expect(charToBin(" ")).toBe("11010");
+  });
+
+  it("binToChar('00000') === 'A'", () => {
+    expect(binToChar("00000")).toBe("A");
+  });
+
+  it("binToChar('11001') === 'Z'", () => {
+    expect(binToChar("11001")).toBe("Z");
+  });
+
+  it("binToChar('11010') === ' '", () => {
+    expect(binToChar("11010")).toBe(" ");
+  });
+
+  it("binToChar('11111') === ' ' (index 31 はスペース)", () => {
+    expect(binToChar("11111")).toBe(" ");
+  });
+
+  it("encode('A') === '00000'", () => {
+    expect(encode("A")).toBe("00000");
+  });
+
+  it("decode('00000') === 'A'", () => {
+    expect(decode("00000")).toBe("A");
+  });
+
+  it("encode/decode ラウンドトリップ（A-Z, スペース）", () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
+    expect(decode(encode(chars))).toBe(chars);
+  });
+});
+
 // ─── initState ──────────────────────────────────────────────
 
 describe("initState", () => {
@@ -66,14 +115,14 @@ describe("initState", () => {
 
   it("各個体の長さが target と一致する", () => {
     for (const ind of initState("HELLO WORLD").population) {
-      expect(ind).toHaveLength(11);
+      expect(ind).toHaveLength(11 * 5);
     }
   });
 
-  it("各文字が CHARS に含まれる", () => {
+  it("各文字が '0' か '1'", () => {
     for (const ind of initState("TEST").population) {
       for (const ch of ind) {
-        expect(CHARS).toContain(ch);
+        expect(ch === "0" || ch === "1").toBe(true);
       }
     }
   });

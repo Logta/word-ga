@@ -1,8 +1,8 @@
 // 個体・適応度
-let chars : Array[Char] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ".to_array()
 
-fn random_char() -> Char {
-  chars[rand_int(chars.length())]
+// バイナリ表現 ('0' or '1')
+fn random_bit() -> Char {
+  if rand_int(2) == 0 { '0' } else { '1' }
 }
 
 pub fn calc_fitness(ind : String, target : String) -> Double {
@@ -15,5 +15,6 @@ pub fn calc_fitness(ind : String, target : String) -> Double {
       m += 1
     }
   }
+  // ビット単位での一致度
   m.to_double() / n.to_double()
 }
