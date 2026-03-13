@@ -38,9 +38,15 @@ describe("初期状態", () => {
     expect(result.current[0].population).toHaveLength(30);
   });
 
-  it("wasmReady は常に true", () => {
+  it("actions オブジェクトが返る", () => {
     const { result } = renderHook(() => useSimulator());
-    expect(result.current[2]).toBe(true);
+    const [, actions] = result.current;
+    expect(typeof actions.start).toBe("function");
+    expect(typeof actions.pause).toBe("function");
+    expect(typeof actions.stepOnce).toBe("function");
+    expect(typeof actions.reset).toBe("function");
+    expect(typeof actions.setSpeed).toBe("function");
+    expect(typeof actions.applyTarget).toBe("function");
   });
 });
 

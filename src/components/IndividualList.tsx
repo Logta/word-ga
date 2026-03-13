@@ -1,22 +1,11 @@
-import { calcFitness } from "../ga/core";
 import type { Individual } from "../types";
+import { GeneDisplay } from "./GeneDisplay";
 
 const ELITE_DISPLAY_COUNT = 3;
 
 interface IndividualListProps {
-  population: Individual[];
+  sorted: { ind: Individual; fit: number }[];
   target: string;
-}
-
-function renderGene(ind: Individual, target: string) {
-  return ind.split("").map((ch, i) => (
-    <span
-      key={i}
-      className={ch === target[i] ? "text-green-400 font-bold" : "text-red-400"}
-    >
-      {ch === " " ? "\u00A0" : ch}
-    </span>
-  ));
 }
 
 function fitBarColor(fit: number, isElite: boolean): string {
@@ -26,11 +15,7 @@ function fitBarColor(fit: number, isElite: boolean): string {
   return "bg-gray-500";
 }
 
-export function IndividualList({ population, target }: IndividualListProps) {
-  const sorted = [...population].sort(
-    (a, b) => calcFitness(b, target) - calcFitness(a, target)
-  );
-
+export function IndividualList({ sorted, target }: IndividualListProps) {
   return (
     <div className="bg-gray-800 rounded-lg p-3 flex flex-col min-h-0">
       <h2 className="text-cyan-400 font-bold mb-2 text-sm">
@@ -38,8 +23,7 @@ export function IndividualList({ population, target }: IndividualListProps) {
         <span className="text-gray-500 font-normal">（適応度降順）</span>
       </h2>
       <div className="overflow-y-auto flex-1 space-y-1">
-        {sorted.map((ind, idx) => {
-          const fit = calcFitness(ind, target);
+        {sorted.map(({ ind, fit }, idx) => {
           const isElite = idx < ELITE_DISPLAY_COUNT;
           return (
             <div
@@ -61,7 +45,7 @@ export function IndividualList({ population, target }: IndividualListProps) {
                 {isElite ? "★" : "·"}
               </span>
               <span className="font-mono shrink-0 tracking-wider w-[7.5rem]">
-                {renderGene(ind, target)}
+                <GeneDisplay ind={ind} target={target} />
               </span>
               <div className="flex-1 bg-gray-600 rounded-full h-1.5">
                 <div

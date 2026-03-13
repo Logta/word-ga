@@ -6,8 +6,11 @@ export const POP_SIZE = 30;
 export const MUTATION_RATE = 0.03;
 export const ELITE_RATIO = 0.4;
 
-// wasmBridgeへの後方互換エクスポート
 export const calcFitness = wasmCalcFitness;
+
+export function sanitize(raw: string): string {
+  return raw.toUpperCase().replace(/[^A-Z ]/g, "").slice(0, 20);
+}
 
 function randomChar(): string {
   return CHARS[Math.floor(Math.random() * CHARS.length)];

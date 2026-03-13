@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { SimState } from "../types";
-import { initState, stepState } from "../ga/core";
+import { initState, stepState, sanitize } from "../ga/core";
 
 const DEFAULT_TARGET = "HELLO WORLD";
 
@@ -13,11 +13,10 @@ export interface SimulatorActions {
   applyTarget: (rawInput: string) => void;
 }
 
-export function useSimulator(): [SimState, SimulatorActions, boolean] {
+export function useSimulator(): [SimState, SimulatorActions] {
   const [state, setState] = useState<SimState>(() => initState(DEFAULT_TARGET));
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // 自動実行インターバル管理
   useEffect(() => {
     if (state.isRunning) {
       intervalRef.current = setInterval(() => {
@@ -45,16 +44,11 @@ export function useSimulator(): [SimState, SimulatorActions, boolean] {
     (speed: number) => setState((p) => ({ ...p, speed })),
     []
   );
-
   const applyTarget = useCallback((rawInput: string) => {
-    const cleaned = rawInput
-      .toUpperCase()
-      .replace(/[^A-Z ]/g, "")
-      .slice(0, 20);
+    const cleaned = sanitize(rawInput);
     if (!cleaned.trim()) return;
     setState((p) => initState(cleaned, p.speed));
   }, []);
 
-  const actions: SimulatorActions = { start, pause, stepOnce, reset, setSpeed, applyTarget };
-  return [state, actions, true];
+  return [state, { start, pause, stepOnce, reset, setSpeed, applyTarget }];
 }

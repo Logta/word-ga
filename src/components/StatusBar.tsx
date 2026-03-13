@@ -1,5 +1,5 @@
-import { calcFitness } from "../ga/core";
 import type { Individual } from "../types";
+import { GeneDisplay } from "./GeneDisplay";
 
 interface StatusBarProps {
   generation: number;
@@ -7,17 +7,6 @@ interface StatusBarProps {
   avgFit: number;
   bestInd: Individual;
   target: string;
-}
-
-function renderGene(ind: Individual, target: string) {
-  return ind.split("").map((ch, i) => (
-    <span
-      key={i}
-      className={ch === target[i] ? "text-green-400 font-bold" : "text-red-400"}
-    >
-      {ch === " " ? "\u00A0" : ch}
-    </span>
-  ));
 }
 
 export function StatusBar({ generation, bestFit, avgFit, bestInd, target }: StatusBarProps) {
@@ -41,7 +30,9 @@ export function StatusBar({ generation, bestFit, avgFit, bestInd, target }: Stat
       </div>
       <div>
         <div className="text-gray-500 text-xs mb-0.5">ベスト個体</div>
-        <div className="font-bold tracking-widest text-sm">{renderGene(bestInd, target)}</div>
+        <div className="font-bold tracking-widest text-sm">
+          <GeneDisplay ind={bestInd} target={target} />
+        </div>
       </div>
     </div>
   );

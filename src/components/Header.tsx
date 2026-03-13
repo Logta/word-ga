@@ -1,3 +1,5 @@
+import { sanitize } from "../ga/core";
+
 interface HeaderProps {
   targetInput: string;
   isRunning: boolean;
@@ -16,9 +18,7 @@ export function Header({ targetInput, isRunning, onChange, onSet }: HeaderProps)
         <input
           type="text"
           value={targetInput}
-          onChange={(e) =>
-            onChange(e.target.value.toUpperCase().replace(/[^A-Z ]/g, ""))
-          }
+          onChange={(e) => onChange(sanitize(e.target.value))}
           onKeyDown={(e) => e.key === "Enter" && !isRunning && onSet()}
           disabled={isRunning}
           maxLength={20}

@@ -1,8 +1,10 @@
+const SPEED_MIN = 100;
+const SPEED_MAX = 1000;
+
 interface ControlsProps {
   isRunning: boolean;
   solved: boolean;
   speed: number;
-  wasmReady: boolean;
   onStart: () => void;
   onPause: () => void;
   onStepOnce: () => void;
@@ -14,7 +16,6 @@ export function Controls({
   isRunning,
   solved,
   speed,
-  wasmReady,
   onStart,
   onPause,
   onStepOnce,
@@ -26,11 +27,11 @@ export function Controls({
       {!isRunning ? (
         <button
           onClick={onStart}
-          disabled={!wasmReady || solved}
+          disabled={solved}
           className="px-5 py-2 bg-green-700 hover:bg-green-600 rounded font-bold
                      disabled:opacity-40 transition-colors min-w-[90px]"
         >
-          {wasmReady ? "▶ 開始" : "読込中…"}
+          ▶ 開始
         </button>
       ) : (
         <button
@@ -43,15 +44,14 @@ export function Controls({
       )}
       <button
         onClick={onStepOnce}
-        disabled={!wasmReady || isRunning || solved}
+        disabled={isRunning || solved}
         className="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded disabled:opacity-40 transition-colors"
       >
         ⏭ 次の世代
       </button>
       <button
         onClick={onReset}
-        disabled={!wasmReady}
-        className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded disabled:opacity-40 transition-colors"
+        className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded transition-colors"
       >
         ↺ リセット
       </button>
@@ -59,12 +59,12 @@ export function Controls({
         <span className="text-gray-500 text-xs">遅い</span>
         <input
           type="range"
-          min={100}
-          max={1000}
+          min={SPEED_MIN}
+          max={SPEED_MAX}
           step={50}
           // スライダー右端 = 速い（delay小）になるよう反転
-          value={1100 - speed}
-          onChange={(e) => onSpeedChange(1100 - Number(e.target.value))}
+          value={SPEED_MIN + SPEED_MAX - speed}
+          onChange={(e) => onSpeedChange(SPEED_MIN + SPEED_MAX - Number(e.target.value))}
           className="w-32 accent-cyan-400"
         />
         <span className="text-gray-500 text-xs">速い</span>

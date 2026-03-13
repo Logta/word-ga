@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSimulator } from "./hooks/useSimulator";
-import { calcFitness, POP_SIZE } from "./ga/core";
+import { calcFitness, sanitize } from "./ga/core";
 import { Header } from "./components/Header";
 import { Controls } from "./components/Controls";
 import { StatusBar } from "./components/StatusBar";
@@ -8,23 +8,24 @@ import { IndividualList } from "./components/IndividualList";
 import { ConvergenceGraph } from "./components/ConvergenceGraph";
 
 export default function App() {
-  const [state, actions, wasmReady] = useSimulator();
+  const [state, actions] = useSimulator();
   const [targetInput, setTargetInput] = useState(state.target);
 
   const { target, population, generation, history, isRunning, speed, solved } = state;
 
-  const sortedPop = [...population].sort(
-    (a, b) => calcFitness(b, target) - calcFitness(a, target)
+  const sorted = useMemo(
+    () =>
+      [...population]
+        .map((ind) => ({ ind, fit: calcFitness(ind, target) }))
+        .sort((a, b) => b.fit - a.fit),
+    [population, target]
   );
-  const bestInd = sortedPop[0];
-  const bestFit = calcFitness(bestInd, target);
-  const avgFit = population.reduce((s, ind) => s + calcFitness(ind, target), 0) / POP_SIZE;
+
+  const { best: bestFit, avg: avgFit } = history[history.length - 1];
 
   const handleSetTarget = () => {
     actions.applyTarget(targetInput);
-    setTargetInput((prev) =>
-      prev.toUpperCase().replace(/[^A-Z ]/g, "").slice(0, 20)
-    );
+    setTargetInput(sanitize(targetInput));
   };
 
   return (
@@ -39,7 +40,6 @@ export default function App() {
         isRunning={isRunning}
         solved={solved}
         speed={speed}
-        wasmReady={wasmReady}
         onStart={actions.start}
         onPause={actions.pause}
         onStepOnce={actions.stepOnce}
@@ -50,7 +50,7 @@ export default function App() {
         generation={generation}
         bestFit={bestFit}
         avgFit={avgFit}
-        bestInd={bestInd}
+        bestInd={sorted[0]?.ind ?? ""}
         target={target}
       />
       {solved && (
@@ -59,7 +59,7 @@ export default function App() {
         </div>
       )}
       <div className="grid grid-cols-2 gap-3 flex-1">
-        <IndividualList population={population} target={target} />
+        <IndividualList sorted={sorted} target={target} />
         <ConvergenceGraph history={history} />
       </div>
     </div>
