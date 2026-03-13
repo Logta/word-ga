@@ -101,6 +101,7 @@ cd moonbit && moon test --enable-coverage && moon coverage report -f summary
 | `adrs/007-elite-selection.md` | エリート選択戦略（elite_ratio=0.4）を採用 |
 | `adrs/008-pipe-separator-wasm-api.md` | `\|` セパレータで集団をjoinしてWasm間通信 |
 | `adrs/009-bun-migration.md` | JS ベースを npm から Bun に移行 |
+| `adrs/010-pcg-rng.md` | 乱数生成を xorshift64 から PCG に変更 |
 
 ---
 

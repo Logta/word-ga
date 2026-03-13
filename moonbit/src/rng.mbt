@@ -1,33 +1,40 @@
-// 乱数生成 (xorshift64)
+// 乱数生成 (PCG-64: Permuted Congruential Generator)
 // モジュールレベル let mut は使えないため Array の可変性を利用
-let rng_state : Array[Int64] = [123456789L]
-
-// i64の最大値（2^63 - 1）を Double で表した値
-let int64_max_f : Double = 9223372036854775807.0
+let pcg_state : Array[Int64] = [0L]
+let pcg_inc   : Array[Int64] = [1442695040888963407L] // 奇数固定
 
 // JavaScriptのDate.now()などで初期化する
+// PCG標準初期化: 状態をゼロリセット → 1ステップ進める → シードを加算 → もう1ステップ進める（ウォームアップ）
 pub fn init_rng(seed : Int) -> Unit {
-  rng_state[0] = seed.to_int64()
+  pcg_state[0] = 0L
+  let _ = pcg_next32()
+  pcg_state[0] = pcg_state[0] + seed.to_int64()
+  let _ = pcg_next32()
 }
 
-fn rand_next() -> Int64 {
-  let mut x = rng_state[0]
-  x = x.lxor(x << 13)
-  x = x.lxor(x >> 7)
-  x = x.lxor(x << 17)
-  rng_state[0] = x
-  x
+// 32ビット論理右シフト（MoonBit の >> は算術右シフトのため符号ビットをマスク）
+fn logical_shr32(x : Int, n : Int) -> Int {
+  if n == 0 { x } else { (x >> n).land(0x7FFFFFFF >> (n - 1)) }
+}
+
+// PCG-64: 32ビット出力を返す内部関数
+fn pcg_next32() -> Int {
+  let old = pcg_state[0]
+  pcg_state[0] = old * 6364136223846793005L + pcg_inc[0]
+  // xorshift した上位32ビットを抽出（シフト量は Int で渡す）
+  let xorshifted = (((old >> 18).lxor(old)) >> 27).to_int()
+  // 回転量（0〜31）は状態の上位5ビットから取得
+  let rot = (old >> 59).to_int().land(31)
+  // rotr32: 論理右シフト + 左シフトの合成
+  logical_shr32(xorshifted, rot).lor(xorshifted << ((-rot).land(31)))
 }
 
 fn rand_double() -> Double {
-  let x = rand_next()
-  // 負値を非負に変換（オーバーフローなし）: [-2^63,-1] → [0, 2^63-1]
-  let pos = if x < 0L { -(x + 1L) } else { x }
-  pos.to_double() / int64_max_f
+  // 符号ビットを除いた31ビット正値 → [0, 1)
+  // logical_shr32(x, 1) で最上位ビットをクリアし非負を保証
+  logical_shr32(pcg_next32(), 1).to_double() / 2147483648.0 // 2^31
 }
 
 fn rand_int(limit : Int) -> Int {
-  // 負のmodulo結果を補正
-  let r = (rand_next() % limit.to_int64()).to_int()
-  if r < 0 { r + limit } else { r }
+  logical_shr32(pcg_next32(), 1) % limit
 }

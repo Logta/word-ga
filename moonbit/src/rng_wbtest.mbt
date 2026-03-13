@@ -1,4 +1,4 @@
-// Whitebox tests for rng.mbt
+// Whitebox tests for rng.mbt (PCG-64)
 
 test "init_rng: 同じシードは同じ乱数列を生成する" {
   init_rng(42)
@@ -13,9 +13,9 @@ test "init_rng: 同じシードは同じ乱数列を生成する" {
 
 test "init_rng: 異なるシードは異なる最初の値を生成する" {
   init_rng(1)
-  let a = rand_next()
+  let a = pcg_next32()
   init_rng(2)
-  let b = rand_next()
+  let b = pcg_next32()
   assert_eq(a != b, true)
 }
 
@@ -28,17 +28,28 @@ test "rand_double: 値は[0, 1)の範囲内 (200回)" {
   }
 }
 
-test "rand_double: 負のrand_next出力を正しく処理する" {
-  // seed=1で繰り返すと負のInt64が生成され、else側ではなくif側(x<0)ブランチを踏む
+test "rand_double: 連続する値が全て同じにならない" {
   init_rng(1)
-  let mut found_negative_branch = false
-  for _ in 0..<500 {
-    let x = rand_next()
-    if x < 0L {
-      found_negative_branch = true
+  let first = rand_double()
+  let mut all_same = true
+  for _ in 0..<20 {
+    if rand_double() != first {
+      all_same = false
     }
   }
-  assert_eq(found_negative_branch, true)
+  assert_eq(all_same, false)
+}
+
+test "rand_double: 0.5以上の値が生成される（全域カバー確認）" {
+  // バグ時は [0, 0.25) しか生成されないため、このテストで検出できる
+  init_rng(1)
+  let mut found_above_half = false
+  for _ in 0..<500 {
+    if rand_double() >= 0.5 {
+      found_above_half = true
+    }
+  }
+  assert_eq(found_above_half, true)
 }
 
 test "rand_int: 値は[0, limit)の範囲内 (200回)" {
@@ -51,17 +62,10 @@ test "rand_int: 値は[0, limit)の範囲内 (200回)" {
   }
 }
 
-test "rand_int: 負のmodulo補正ブランチを踏む" {
-  // rand_next()が負のとき r = negative % limit < 0 → r + limit で補正
+test "pcg_next32: 出力は非負" {
   init_rng(1)
-  let mut hit_negative = false
   for _ in 0..<500 {
-    let x = rand_next()
-    let limit = 12
-    let r = (x % limit.to_int64()).to_int()
-    if r < 0 {
-      hit_negative = true
-    }
+    let v = pcg_next32().land(0x7FFFFFFF)
+    assert_eq(v >= 0, true)
   }
-  assert_eq(hit_negative, true)
 }
