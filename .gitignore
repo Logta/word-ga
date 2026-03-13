@@ -13,3 +13,5 @@ _build/
 
 coveralls.json
 cobertura.xml
+
+*.tsbuildinfo
