@@ -30,7 +30,7 @@ describe("StatusBar", () => {
   });
 
   it("100% の場合も正しく表示する", () => {
-    const wrapper = mount(StatusBar, { props: makeProps({ bestFit: 1.0 }) });
+    const wrapper = mount(StatusBar, { props: makeProps({ bestFit: 1 }) });
     expect(wrapper.text()).toContain("100.0%");
   });
 

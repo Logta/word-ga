@@ -2,16 +2,14 @@ import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
 
 vi.mock("chart.js", () => ({
-  Chart: class {
-    static register() {}
-  },
-  CategoryScale: class {},
-  LinearScale: class {},
-  PointElement: class {},
-  LineElement: class {},
-  Title: class {},
-  Tooltip: class {},
-  Legend: class {},
+  Chart: { register: () => {} },
+  CategoryScale: {},
+  LinearScale: {},
+  PointElement: {},
+  LineElement: {},
+  Title: {},
+  Tooltip: {},
+  Legend: {},
 }));
 
 vi.mock("vue-chartjs", async () => {
