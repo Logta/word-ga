@@ -1,5 +1,7 @@
 import { defineComponent, type PropType } from "vue";
 
+import type { SelectionMethod } from "../types";
+
 const SPEED_MIN = 100;
 const SPEED_MAX = 1000;
 
@@ -9,11 +11,16 @@ export default defineComponent({
     isRunning: { type: Boolean, required: true as const },
     solved: { type: Boolean, required: true as const },
     speed: { type: Number, required: true as const },
+    selectionMethod: { type: String as PropType<SelectionMethod>, required: true as const },
     onStart: { type: Function as PropType<() => void>, required: true as const },
     onPause: { type: Function as PropType<() => void>, required: true as const },
     onStepOnce: { type: Function as PropType<() => void>, required: true as const },
     onReset: { type: Function as PropType<() => void>, required: true as const },
     onSpeedChange: { type: Function as PropType<(speed: number) => void>, required: true as const },
+    onSelectionMethodChange: {
+      type: Function as PropType<(selectionMethod: SelectionMethod) => void>,
+      required: true as const,
+    },
   },
   setup(props) {
     return () => (
@@ -47,6 +54,21 @@ export default defineComponent({
         >
           ↺ リセット
         </button>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500">選択:</span>
+          <select
+            value={props.selectionMethod}
+            onChange={(e: Event) =>
+              props.onSelectionMethodChange(
+                (e.target as HTMLSelectElement).value as SelectionMethod,
+              )
+            }
+            class="rounded bg-gray-700 px-2 py-1 text-xs text-white focus:outline-none"
+          >
+            <option value="elite">エリート</option>
+            <option value="roulette">ルーレット</option>
+          </select>
+        </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-gray-500">遅い</span>
           <input

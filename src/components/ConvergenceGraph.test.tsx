@@ -30,6 +30,7 @@ const makeHistory = (count: number) =>
     generation: i,
     best: Math.min(1, 0.1 + i * 0.01),
     avg: Math.min(1, 0.05 + i * 0.008),
+    diversity: Math.max(0, 0.5 - i * 0.005),
   }));
 
 describe("ConvergenceGraph", () => {

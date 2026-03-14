@@ -1,9 +1,12 @@
 export type Individual = string;
 
+export type SelectionMethod = "elite" | "roulette";
+
 export interface HistoryEntry {
   generation: number;
   best: number;
   avg: number;
+  diversity: number;
 }
 
 export interface SimState {
@@ -14,4 +17,5 @@ export interface SimState {
   isRunning: boolean;
   speed: number;
   solved: boolean;
+  selectionMethod: SelectionMethod;
 }

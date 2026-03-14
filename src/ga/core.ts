@@ -1,4 +1,4 @@
-import type { Individual, SimState } from "../types";
+import type { Individual, SelectionMethod, SimState } from "../types";
 import { wasmCalcFitness, wasmEvolve } from "./wasmBridge";
 
 export const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "; // A=00000(0), Z=11001(25), space=11010(26)
@@ -10,6 +10,34 @@ export const ELITE_RATIO = 0.4;
 export const DEFAULT_SPEED = 300;
 
 export const calcFitness = wasmCalcFitness;
+
+// 平均ペアワイズハミング距離を染色体長で正規化した多様性指標
+// 理論最大値は n/(2*(n-1))。n=30 では約 0.517、n→∞ で 0.5 に収束
+// 各ビット位置で 1 の個数 k を数えれば k*(n-k) が「そのビットで差がある個体ペア数」になる
+export function calcDiversity(population: Individual[]): number {
+  const n = population.length;
+  // eslint-disable-next-line no-magic-numbers
+  if (n < 2) {
+    return 0;
+  }
+  const L = population[0].length;
+  if (L === 0) {
+    return 0;
+  }
+  let totalDiff = 0;
+  for (let p = 0; p < L; p++) {
+    let ones = 0;
+    for (const ind of population) {
+      if (ind[p] === "1") {
+        ones++;
+      }
+    }
+    totalDiff += ones * (n - ones);
+  }
+  // eslint-disable-next-line no-magic-numbers
+  const pairs = (n * (n - 1)) / 2;
+  return totalDiff / pairs / L;
+}
 
 export function charToBin(char: string): string {
   const index = CHARS.indexOf(char);
@@ -52,7 +80,11 @@ function randomIndividual(targetLen: number): Individual {
 }
 
 // eslint-disable-next-line no-magic-numbers
-export function initState(target: string, prevSpeed = DEFAULT_SPEED): SimState {
+export function initState(
+  target: string,
+  prevSpeed = DEFAULT_SPEED,
+  prevSelectionMethod: SelectionMethod = "elite",
+): SimState {
   const binTarget = encode(target);
   const population = Array.from({ length: POP_SIZE }, () => randomIndividual(target.length));
   const fits = population.map((ind) => wasmCalcFitness(ind, binTarget));
@@ -62,10 +94,11 @@ export function initState(target: string, prevSpeed = DEFAULT_SPEED): SimState {
     target,
     population,
     generation: 0,
-    history: [{ generation: 0, best, avg }],
+    history: [{ generation: 0, best, avg, diversity: calcDiversity(population) }],
     isRunning: false,
     speed: prevSpeed,
     solved: false,
+    selectionMethod: prevSelectionMethod,
   };
 }
 
@@ -74,7 +107,7 @@ export function stepState(prev: SimState): SimState {
     return { ...prev, isRunning: false };
   }
   const binTarget = encode(prev.target);
-  const newPop = wasmEvolve(prev.population, binTarget);
+  const newPop = wasmEvolve(prev.population, binTarget, prev.selectionMethod);
   const fits = newPop.map((ind) => wasmCalcFitness(ind, binTarget));
   const best = Math.max(...fits);
   const avg = fits.reduce((a, b) => a + b, 0) / POP_SIZE;
@@ -84,7 +117,7 @@ export function stepState(prev: SimState): SimState {
     ...prev,
     population: newPop,
     generation,
-    history: [...prev.history, { generation, best, avg }],
+    history: [...prev.history, { generation, best, avg, diversity: calcDiversity(newPop) }],
     isRunning: solved ? false : prev.isRunning,
     solved,
   };

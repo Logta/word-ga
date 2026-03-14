@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
 
+import type { SelectionMethod } from "../types";
 import Controls from "./Controls";
 
 // SPEED_MIN=100, SPEED_MAX=1000 (Controls.tsx の定数に合わせる)
@@ -11,11 +12,13 @@ const makeProps = (overrides: Record<string, unknown> = {}) => ({
   isRunning: false,
   solved: false,
   speed: 300,
+  selectionMethod: "elite" as SelectionMethod,
   onStart: vi.fn(),
   onPause: vi.fn(),
   onStepOnce: vi.fn(),
   onReset: vi.fn(),
   onSpeedChange: vi.fn(),
+  onSelectionMethodChange: vi.fn(),
   ...overrides,
 });
 
@@ -96,5 +99,27 @@ describe("Controls", () => {
     const wrapper = mount(Controls, { props: makeProps({ onSpeedChange }) });
     await wrapper.find("input[type=range]").setValue("600");
     expect(onSpeedChange).toHaveBeenCalledWith(SPEED_MIN + SPEED_MAX - 600); // 500
+  });
+
+  it("選択方法セレクタが表示される", () => {
+    const wrapper = mount(Controls, { props: makeProps() });
+    expect(wrapper.find("select").exists()).toBe(true);
+  });
+
+  it("selectionMethod='elite' のとき select の value が 'elite'", () => {
+    const wrapper = mount(Controls, { props: makeProps({ selectionMethod: "elite" }) });
+    expect((wrapper.find("select").element as HTMLSelectElement).value).toBe("elite");
+  });
+
+  it("selectionMethod='roulette' のとき select の value が 'roulette'", () => {
+    const wrapper = mount(Controls, { props: makeProps({ selectionMethod: "roulette" }) });
+    expect((wrapper.find("select").element as HTMLSelectElement).value).toBe("roulette");
+  });
+
+  it("セレクタ変更で onSelectionMethodChange が呼ばれる", async () => {
+    const onSelectionMethodChange = vi.fn();
+    const wrapper = mount(Controls, { props: makeProps({ onSelectionMethodChange }) });
+    await wrapper.find("select").setValue("roulette");
+    expect(onSelectionMethodChange).toHaveBeenCalledWith("roulette");
   });
 });

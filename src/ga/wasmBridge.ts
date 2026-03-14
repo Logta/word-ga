@@ -1,5 +1,7 @@
 import type { init } from "mbt:ga-core/src";
 
+import type { SelectionMethod } from "../types";
+
 type GaWasmExports = Awaited<ReturnType<typeof init>>["exports"];
 
 const SEP = "|";
@@ -24,6 +26,10 @@ export function wasmCalcFitness(ind: string, target: string): number {
   return wasm().calc_fitness(ind, target);
 }
 
-export function wasmEvolve(population: string[], target: string): string[] {
-  return wasm().evolve(population.join(SEP), target).split(SEP);
+export function wasmEvolve(
+  population: string[],
+  target: string,
+  selectionMethod: SelectionMethod = "elite",
+): string[] {
+  return wasm().evolve(population.join(SEP), target, selectionMethod).split(SEP);
 }
