@@ -1,0 +1,21 @@
+{
+  "testRunner": "vitest",
+  "vitest": {
+    "configFile": "vitest.mutation.config.ts"
+  },
+  "mutate": [
+    "src/ga/core.ts",
+    "src/hooks/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.d.ts"
+  ],
+  "reporters": ["clear-text", "html"],
+  "htmlReporter": {
+    "fileName": "mutation-report.html"
+  },
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 50
+  }
+}
