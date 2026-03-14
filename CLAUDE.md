@@ -34,7 +34,7 @@ cd moonbit && moon coverage clean && moon test --enable-coverage && moon coverag
 001 MoonBit+wasm-gc / 002 5bit符号化 / 003 ビット適応度 / 004 xorshift64乱数 /
 005 Tailwind v4 / 006 recharts / 007 エリート選択 / 008 パイプ区切りWasm通信 /
 009 Bun移行 / 010 PCG乱数 / 011 GitHub Pages / 012 CIワークフロー /
-013 Vue+TSX移行 / 014 プラガブル選択戦略
+013 Vue+TSX移行 / 014 差し替え可能な選択戦略 / 015 選択戦略パラメータ文字列化
 
 ## コンパクション時に保持すること
 
