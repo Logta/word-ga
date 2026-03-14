@@ -13,7 +13,7 @@ export type SimulatorActions = {
   setSpeed: (speed: number) => void;
   applyTarget: (rawInput: string) => void;
   setSelectionMethod: (selectionMethod: SelectionMethod) => void;
-}
+};
 
 export function useSimulator(): [SimState, SimulatorActions] {
   const state = reactive<SimState>(initState(DEFAULT_TARGET));

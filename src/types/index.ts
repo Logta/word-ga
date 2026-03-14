@@ -2,12 +2,7 @@ export type Individual = string;
 
 export type SelectionMethod = "elite" | "roulette";
 
-export type HistoryEntry = {
-  generation: number;
-  best: number;
-  avg: number;
-  diversity: number;
-}
+export type HistoryEntry = { generation: number; best: number; avg: number; diversity: number };
 
 export type SimState = {
   target: string;
@@ -18,4 +13,4 @@ export type SimState = {
   speed: number;
   solved: boolean;
   selectionMethod: SelectionMethod;
-}
+};
