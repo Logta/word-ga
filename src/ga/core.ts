@@ -16,17 +16,25 @@ export const calcFitness = wasmCalcFitness;
 // 各ビット位置で 1 の個数 k を数えれば k*(n-k) が「そのビットで差がある個体ペア数」になる
 export function calcDiversity(population: Individual[]): number {
   const n = population.length;
-  if (n < 2) return 0;
+  // eslint-disable-next-line no-magic-numbers
+  if (n < 2) {
+    return 0;
+  }
   const L = population[0].length;
-  if (L === 0) return 0;
+  if (L === 0) {
+    return 0;
+  }
   let totalDiff = 0;
   for (let p = 0; p < L; p++) {
     let ones = 0;
     for (const ind of population) {
-      if (ind[p] === "1") ones++;
+      if (ind[p] === "1") {
+        ones++;
+      }
     }
     totalDiff += ones * (n - ones);
   }
+  // eslint-disable-next-line no-magic-numbers
   const pairs = (n * (n - 1)) / 2;
   return totalDiff / pairs / L;
 }

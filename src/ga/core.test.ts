@@ -115,7 +115,7 @@ describe("calcDiversity", () => {
   });
 
   it("完全に相補的な2個体のとき最大値 1.0 を返す（n=2 の理論最大値は n/(2*(n-1))=1.0）", () => {
-    expect(calcDiversity(["0000", "1111"])).toBeCloseTo(1.0);
+    expect(calcDiversity(["0000", "1111"])).toBeCloseTo(1);
   });
 
   it("結果は 0 以上 n/(2*(n-1)) 以下", () => {
