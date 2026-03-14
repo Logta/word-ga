@@ -52,9 +52,7 @@ const baseActions = {
   applyTarget: vi.fn(),
 };
 
-vi.mock("./hooks/useSimulator", () => ({
-  useSimulator: vi.fn(() => [baseState, baseActions]),
-}));
+vi.mock("./hooks/useSimulator", () => ({ useSimulator: vi.fn(() => [baseState, baseActions]) }));
 
 describe("App", () => {
   it("エラーなくレンダリングされる", () => {
