@@ -9,15 +9,23 @@ test "crossover: 出力長がp1と同じ" {
 }
 
 ///|
-test "crossover: 各文字はp1かp2のいずれかから" {
-  init_rng(1)
-  let p1 = "11111"
-  let p2 = "00000"
-  let p1_arr = p1.to_array()
-  let p2_arr = p2.to_array()
-  let result = crossover(p1, p2).to_array()
-  for i in 0..<5 {
-    assert_eq(result[i] == p1_arr[i] || result[i] == p2_arr[i], true)
+test "crossover: 結果はp1プレフィックス＋p2サフィックスの構造（10回）" {
+  // p1="11111", p2="00000" のとき結果は必ず "1...10...0" の形式
+  // 変異 i < pt → i >= pt だと "0...01...1" になり detected できる
+  init_rng(42)
+  for _ in 0..<10 {
+    let result = crossover("11111", "00000").to_array()
+    let mut found_zero = false
+    let mut valid = true
+    for c in result {
+      if c == '0' {
+        found_zero = true
+      } else if found_zero {
+        // '1'が'0'の後に来るのは構造違反
+        valid = false
+      }
+    }
+    assert_eq(valid, true)
   }
 }
 
@@ -35,6 +43,25 @@ test "mutate: 出力文字が '0' または '1'" {
   for c in mutate("11111") {
     assert_eq(c == '0' || c == '1', true)
   }
+}
+
+///|
+test "mutate: 変異率は低い（長い文字列でほとんど変化しない）" {
+  // mutation_rate=0.03 なら 100文字で期待値3箇所の変異
+  // 変異 rand < rate → rand > rate だと97%変化し、この検証で検出できる
+  init_rng(42)
+  let original = Array::make(100, "0").join("")
+  let result = mutate(original)
+  let mut changes = 0
+  let orig_arr = original.to_array()
+  let res_arr = result.to_array()
+  for i in 0..<100 {
+    if orig_arr[i] != res_arr[i] {
+      changes = changes + 1
+    }
+  }
+  // mutation_rate=0.03 なので 100文字中の変異数は通常20未満
+  assert_eq(changes < 20, true)
 }
 
 // ─── evolve ──────────────────────────────────────────────────────────────────
