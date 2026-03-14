@@ -1,12 +1,34 @@
+import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { defineComponent, nextTick } from "vue";
+
 import { useSimulator } from "./useSimulator";
+
+function renderHook<T>(composable: () => T) {
+  let result!: T;
+  const Wrapper = defineComponent({
+    setup() {
+      result = composable();
+      return () => undefined;
+    },
+  });
+  mount(Wrapper, { attachTo: document.createElement("div") });
+  return {
+    result: {
+      get value() {
+        return result;
+      },
+    },
+  };
+}
 
 vi.mock("../ga/wasmBridge", () => ({
   wasmCalcFitness: vi.fn((ind: string, target: string) => {
     let m = 0;
     for (let i = 0; i < target.length; i++) {
-      if (ind[i] === target[i]) m++;
+      if (ind[i] === target[i]) {
+        m++;
+      }
     }
     return m / target.length;
   }),
@@ -22,12 +44,12 @@ afterEach(() => {
 describe("初期状態", () => {
   it("target は HELLO WORLD", () => {
     const { result } = renderHook(() => useSimulator());
-    expect(result.current[0].target).toBe("HELLO WORLD");
+    expect(result.value[0].target).toBe("HELLO WORLD");
   });
 
   it("generation=0, isRunning=false, solved=false", () => {
     const { result } = renderHook(() => useSimulator());
-    const [state] = result.current;
+    const [state] = result.value;
     expect(state.generation).toBe(0);
     expect(state.isRunning).toBe(false);
     expect(state.solved).toBe(false);
@@ -35,12 +57,12 @@ describe("初期状態", () => {
 
   it("population は 30 個体", () => {
     const { result } = renderHook(() => useSimulator());
-    expect(result.current[0].population).toHaveLength(30);
+    expect(result.value[0].population).toHaveLength(30);
   });
 
   it("actions オブジェクトが返る", () => {
     const { result } = renderHook(() => useSimulator());
-    const [, actions] = result.current;
+    const [, actions] = result.value;
     expect(typeof actions.start).toBe("function");
     expect(typeof actions.pause).toBe("function");
     expect(typeof actions.stepOnce).toBe("function");
@@ -53,132 +75,159 @@ describe("初期状態", () => {
 // ─── アクション ──────────────────────────────────────────────
 
 describe("start / pause", () => {
-  it("start() で isRunning=true", () => {
+  it("start() で isRunning=true", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].start());
-    expect(result.current[0].isRunning).toBe(true);
+    result.value[1].start();
+    await nextTick();
+    expect(result.value[0].isRunning).toBe(true);
   });
 
-  it("pause() で isRunning=false", () => {
+  it("pause() で isRunning=false", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].start());
-    act(() => result.current[1].pause());
-    expect(result.current[0].isRunning).toBe(false);
+    result.value[1].start();
+    await nextTick();
+    result.value[1].pause();
+    await nextTick();
+    expect(result.value[0].isRunning).toBe(false);
   });
 });
 
 describe("stepOnce", () => {
-  it("generation を1増やす", () => {
+  it("generation を1増やす", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].stepOnce());
-    expect(result.current[0].generation).toBe(1);
+    result.value[1].stepOnce();
+    await nextTick();
+    expect(result.value[0].generation).toBe(1);
   });
 
-  it("history が1エントリー増える", () => {
+  it("history が1エントリー増える", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].stepOnce());
-    expect(result.current[0].history).toHaveLength(2);
+    result.value[1].stepOnce();
+    await nextTick();
+    expect(result.value[0].history).toHaveLength(2);
   });
 });
 
 describe("setSpeed", () => {
-  it("speed が更新される", () => {
+  it("speed が更新される", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].setSpeed(50));
-    expect(result.current[0].speed).toBe(50);
+    result.value[1].setSpeed(50);
+    await nextTick();
+    expect(result.value[0].speed).toBe(50);
   });
 });
 
 describe("reset", () => {
-  it("stepOnce 後に reset すると generation=0", () => {
+  it("stepOnce 後に reset すると generation=0", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].stepOnce());
-    act(() => result.current[1].reset());
-    expect(result.current[0].generation).toBe(0);
+    result.value[1].stepOnce();
+    await nextTick();
+    result.value[1].reset();
+    await nextTick();
+    expect(result.value[0].generation).toBe(0);
   });
 
-  it("reset 後に speed が維持される", () => {
+  it("reset 後に speed が維持される", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].setSpeed(50));
-    act(() => result.current[1].reset());
-    expect(result.current[0].speed).toBe(50);
+    result.value[1].setSpeed(50);
+    await nextTick();
+    result.value[1].reset();
+    await nextTick();
+    expect(result.value[0].speed).toBe(50);
   });
 
-  it("reset 後に isRunning=false", () => {
+  it("reset 後に isRunning=false", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].reset());
-    expect(result.current[0].isRunning).toBe(false);
+    result.value[1].reset();
+    await nextTick();
+    expect(result.value[0].isRunning).toBe(false);
   });
 });
 
 describe("applyTarget", () => {
-  it("target が変更される", () => {
+  it("target が変更される", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].applyTarget("VITEST"));
-    expect(result.current[0].target).toBe("VITEST");
+    result.value[1].applyTarget("VITEST");
+    await nextTick();
+    expect(result.value[0].target).toBe("VITEST");
   });
 
-  it("小文字を大文字に変換する", () => {
+  it("小文字を大文字に変換する", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].applyTarget("hello"));
-    expect(result.current[0].target).toBe("HELLO");
+    result.value[1].applyTarget("hello");
+    await nextTick();
+    expect(result.value[0].target).toBe("HELLO");
   });
 
-  it("A-Z とスペース以外の文字を除去する", () => {
+  it("A-Z とスペース以外の文字を除去する", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].applyTarget("HELLO123!"));
-    expect(result.current[0].target).toBe("HELLO");
+    result.value[1].applyTarget("HELLO123!");
+    await nextTick();
+    expect(result.value[0].target).toBe("HELLO");
   });
 
-  it("20文字以上はトリムされる", () => {
+  it("20文字以上はトリムされる", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].applyTarget("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-    expect(result.current[0].target).toHaveLength(20);
+    result.value[1].applyTarget("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    await nextTick();
+    expect(result.value[0].target).toHaveLength(20);
   });
 
-  it("空白のみの入力は無視される", () => {
+  it("空白のみの入力は無視される", async () => {
     const { result } = renderHook(() => useSimulator());
-    const originalTarget = result.current[0].target;
-    act(() => result.current[1].applyTarget("   "));
-    expect(result.current[0].target).toBe(originalTarget);
+    const originalTarget = result.value[0].target;
+    result.value[1].applyTarget("   ");
+    await nextTick();
+    expect(result.value[0].target).toBe(originalTarget);
   });
 
-  it("target 変更後に generation がリセットされる", () => {
+  it("target 変更後に generation がリセットされる", async () => {
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].stepOnce());
-    act(() => result.current[1].applyTarget("NEW"));
-    expect(result.current[0].generation).toBe(0);
+    result.value[1].stepOnce();
+    await nextTick();
+    result.value[1].applyTarget("NEW");
+    await nextTick();
+    expect(result.value[0].generation).toBe(0);
   });
 });
 
 // ─── 自動進化（フェイクタイマー）──────────────────────────────
 
 describe("自動進化", () => {
-  it("isRunning=true 中はインターバルで世代が進む", () => {
+  it("isRunning=true 中はインターバルで世代が進む", async () => {
     vi.useFakeTimers();
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].start());
-    act(() => vi.advanceTimersByTime(300));
-    expect(result.current[0].generation).toBeGreaterThan(0);
+    result.value[1].start();
+    await nextTick();
+    vi.advanceTimersByTime(300);
+    await nextTick();
+    expect(result.value[0].generation).toBeGreaterThan(0);
   });
 
-  it("pause 後はインターバルが止まる", () => {
+  it("pause 後はインターバルが止まる", async () => {
     vi.useFakeTimers();
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].start());
-    act(() => vi.advanceTimersByTime(300));
-    const genAfterRun = result.current[0].generation;
-    act(() => result.current[1].pause());
-    act(() => vi.advanceTimersByTime(300));
-    expect(result.current[0].generation).toBe(genAfterRun);
+    result.value[1].start();
+    await nextTick();
+    vi.advanceTimersByTime(300);
+    await nextTick();
+    const genAfterRun = result.value[0].generation;
+    result.value[1].pause();
+    await nextTick();
+    vi.advanceTimersByTime(300);
+    await nextTick();
+    expect(result.value[0].generation).toBe(genAfterRun);
   });
 
-  it("speed に応じたインターバルで進化する", () => {
+  it("speed に応じたインターバルで進化する", async () => {
     vi.useFakeTimers();
     const { result } = renderHook(() => useSimulator());
-    act(() => result.current[1].setSpeed(100));
-    act(() => result.current[1].start());
-    act(() => vi.advanceTimersByTime(100));
-    expect(result.current[0].generation).toBeGreaterThan(0);
+    result.value[1].setSpeed(100);
+    await nextTick();
+    result.value[1].start();
+    await nextTick();
+    vi.advanceTimersByTime(100);
+    await nextTick();
+    expect(result.value[0].generation).toBeGreaterThan(0);
   });
 });

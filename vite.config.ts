@@ -1,11 +1,13 @@
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
+import vue from "@vitejs/plugin-vue";
+import vueJsx from "@vitejs/plugin-vue-jsx";
 import moonbit from "vite-plugin-moonbit";
 
 export default defineConfig({
   base: "/word-ga/",
   plugins: [
-    react(),
+    vue(),
+    vueJsx(),
     moonbit({
       target: "wasm-gc",
       root: "moonbit",
@@ -17,7 +19,7 @@ export default defineConfig({
     environment: "jsdom",
     coverage: {
       provider: "v8",
-      reporter: ["text", "html"],
+      reporter: ["text", "html", "json-summary"],
       include: ["src/**/*.{ts,tsx}"],
       exclude: ["src/main.tsx", "src/**/*.d.ts", "src/**/*.test.*"],
     },

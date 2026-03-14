@@ -1,12 +1,33 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript"],
-  "rules": {
-    "no-unused-vars": "error",
-    "no-console": "warn",
-    "react/jsx-no-duplicate-props": "error",
-    "react/no-danger": "warn",
-    "typescript/no-explicit-any": "warn"
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "style": "error",
+    "perf": "error"
   },
+  "rules": {
+    "no-magic-numbers": ["error", { "ignore": [0, 1, -1] }],
+    "no-magic-numbers-in-enums": "off",
+    "sort-keys": "off",
+    "id-length": "off",
+    "no-ternary": "off",
+    "capitalized-comments": "off",
+    "sort-imports": "off",
+    "func-style": "off",
+    "unicorn/filename-case": "off",
+    "max-statements": "off",
+    "init-declarations": "off",
+    "unicorn/numeric-separators-style": "off",
+    "unicorn/number-literal-case": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "no-magic-numbers": "off"
+      }
+    }
+  ],
   "ignorePatterns": ["src/mbt.d.ts"]
 }

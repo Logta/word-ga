@@ -10,6 +10,9 @@ jobs:
   test-moonbit:
     name: MoonBit Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -24,9 +27,16 @@ jobs:
       - name: Run MoonBit tests
         run: cd moonbit && moon test --target wasm-gc
 
+      - name: MoonBit Coverage Report
+        uses: ./.github/actions/moonbit-coverage-report
+        if: github.event_name == 'pull_request'
+
   test-ts:
     name: TypeScript Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -41,14 +51,21 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Format check (oxfmt)
+        run: bun run fmt:check
+
       - name: Lint (oxlint)
         run: bun run lint
 
       - name: Type check
         run: bunx tsc -b --noEmit
 
-      - name: Run TypeScript tests
-        run: bun run test --run
+      - name: Run TypeScript tests with coverage
+        run: bun run test:coverage
+
+      - name: TypeScript Coverage Report
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: github.event_name == 'pull_request'
 
   build:
     name: Build

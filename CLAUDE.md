@@ -2,8 +2,8 @@
 
 ## プロジェクト概要
 
-遺伝的アルゴリズム（GA）で文字列を進化させる React + MoonBit (Wasm) シミュレーター。
-GAのコア処理を MoonBit で実装し wasm-gc にコンパイル、React フロントエンドから呼び出す。
+遺伝的アルゴリズム（GA）で文字列を進化させる Vue 3 + MoonBit (Wasm) シミュレーター。
+GAのコア処理を MoonBit で実装し wasm-gc にコンパイル、Vue 3 フロントエンドから呼び出す。
 
 ---
 
@@ -30,7 +30,7 @@ GAのコア処理を MoonBit で実装し wasm-gc にコンパイル、React フ
 | レイヤー | ファイル | 責務 |
 |---|---|---|
 | UI | `src/components/` | 表示のみ。Controls / IndividualList / ConvergenceGraph など |
-| Hook | `src/hooks/useSimulator.ts` | シミュレーション状態・ステップ実行・wasmReady管理 |
+| Hook | `src/hooks/useSimulator.ts` | シミュレーション状態・ステップ実行（Vue Composable）|
 | JS GA | `src/ga/core.ts` | 世代管理、集団の初期化・更新（`initState` / `stepState`） |
 | Wasm Bridge | `src/ga/wasmBridge.ts` | Wasm インスタンス取得、エクスポート関数のラップ |
 | MoonBit | `moonbit/src/` | `rng.mbt`（乱数）/ `individual.mbt`（適応度）/ `ga.mbt`（進化） |
@@ -104,6 +104,7 @@ cd moonbit && moon test --enable-coverage && moon coverage report -f summary
 | `adrs/010-pcg-rng.md` | 乱数生成を xorshift64 から PCG に変更 |
 | `adrs/011-github-pages-cicd.md` | GitHub Pages への CI/CD デプロイ |
 | `adrs/012-ci-workflow.md` | CI ワークフローの整備 |
+| `adrs/013-vue-tsx-migration.md` | フロントエンドを React から Vue 3 + TSX に移行 |
 
 ---
 

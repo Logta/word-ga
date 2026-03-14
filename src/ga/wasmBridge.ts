@@ -3,17 +3,20 @@ import type { init } from "mbt:ga-core/src";
 type GaWasmExports = Awaited<ReturnType<typeof init>>["exports"];
 
 const SEP = "|";
-let _exports: GaWasmExports | null = null;
+let _exports: GaWasmExports | undefined;
 
 export async function initWasm(): Promise<void> {
   const { init } = await import("mbt:ga-core/src");
   const { exports } = await init();
   _exports = exports;
-  _exports.init_rng((Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) | 0);
+  // eslint-disable-next-line no-magic-numbers
+  _exports.init_rng((Date.now() ^ Math.floor(Math.random() * 0x7fff_ffff)) | 0);
 }
 
 function wasm(): GaWasmExports {
-  if (!_exports) throw new Error("Wasm not initialized");
+  if (_exports === undefined) {
+    throw new Error("Wasm not initialized");
+  }
   return _exports;
 }
 

@@ -1,5 +1,7 @@
 declare module "mbt:ga-core/src" {
-  function init(imports?: WebAssembly.Imports): Promise<{
+  function init(
+    imports?: WebAssembly.Imports,
+  ): Promise<{
     exports: {
       calc_fitness: (ind: string, target: string) => number;
       evolve: (popJoined: string, target: string) => string;
