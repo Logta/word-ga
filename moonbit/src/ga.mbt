@@ -43,8 +43,13 @@ fn mutate(ind : String) -> String {
   buf.to_string()
 }
 
-///| sel="elite": エリート選択、sel="roulette": ルーレット選択
-pub fn evolve(population_joined : String, target : String, sel : String) -> String {
+///|
+/// sel="elite": エリート選択、sel="roulette": ルーレット選択
+pub fn evolve(
+  population_joined : String,
+  target : String,
+  sel : String,
+) -> String {
   let pop : Array[String] = population_joined
     .split(sep)
     .map(fn(sv) { sv.to_string() })
