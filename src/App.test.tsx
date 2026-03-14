@@ -39,6 +39,7 @@ const baseState = {
   isRunning: false,
   speed: 300,
   solved: false,
+  selectionMethod: "elite" as const,
 };
 
 const baseActions = {
@@ -48,6 +49,7 @@ const baseActions = {
   reset: vi.fn(),
   setSpeed: vi.fn(),
   applyTarget: vi.fn(),
+  setSelectionMethod: vi.fn(),
 };
 
 vi.mock("./hooks/useSimulator", () => ({ useSimulator: vi.fn(() => [baseState, baseActions]) }));

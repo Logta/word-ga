@@ -39,11 +39,13 @@ export default defineComponent({
           isRunning={state.isRunning}
           solved={state.solved}
           speed={state.speed}
+          selectionMethod={state.selectionMethod}
           onStart={actions.start}
           onPause={actions.pause}
           onStepOnce={actions.stepOnce}
           onReset={actions.reset}
           onSpeedChange={actions.setSpeed}
+          onSelectionMethodChange={actions.setSelectionMethod}
         />
         <StatusBar
           generation={state.generation}

@@ -1,7 +1,7 @@
 import { reactive, watch, onUnmounted } from "vue";
 
 import { initState, stepState, sanitize } from "../ga/core";
-import type { SimState } from "../types";
+import type { SelectionMethod, SimState } from "../types";
 
 const DEFAULT_TARGET = "HELLO WORLD";
 
@@ -12,6 +12,7 @@ export interface SimulatorActions {
   reset: () => void;
   setSpeed: (speed: number) => void;
   applyTarget: (rawInput: string) => void;
+  setSelectionMethod: (selectionMethod: SelectionMethod) => void;
 }
 
 export function useSimulator(): [SimState, SimulatorActions] {
@@ -51,7 +52,7 @@ export function useSimulator(): [SimState, SimulatorActions] {
     Object.assign(state, stepState({ ...state } as SimState));
   };
   const reset = () => {
-    Object.assign(state, initState(state.target, state.speed));
+    Object.assign(state, initState(state.target, state.speed, state.selectionMethod));
   };
   const setSpeed = (speed: number) => {
     state.speed = speed;
@@ -61,8 +62,14 @@ export function useSimulator(): [SimState, SimulatorActions] {
     if (!cleaned.trim()) {
       return;
     }
-    Object.assign(state, initState(cleaned, state.speed));
+    Object.assign(state, initState(cleaned, state.speed, state.selectionMethod));
+  };
+  const setSelectionMethod = (selectionMethod: SelectionMethod) => {
+    state.selectionMethod = selectionMethod;
   };
 
-  return [state as unknown as SimState, { start, pause, stepOnce, reset, setSpeed, applyTarget }];
+  return [
+    state as unknown as SimState,
+    { start, pause, stepOnce, reset, setSpeed, applyTarget, setSelectionMethod },
+  ];
 }

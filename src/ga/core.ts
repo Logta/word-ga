@@ -1,4 +1,4 @@
-import type { Individual, SimState } from "../types";
+import type { Individual, SelectionMethod, SimState } from "../types";
 import { wasmCalcFitness, wasmEvolve } from "./wasmBridge";
 
 export const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "; // A=00000(0), Z=11001(25), space=11010(26)
@@ -52,7 +52,11 @@ function randomIndividual(targetLen: number): Individual {
 }
 
 // eslint-disable-next-line no-magic-numbers
-export function initState(target: string, prevSpeed = DEFAULT_SPEED): SimState {
+export function initState(
+  target: string,
+  prevSpeed = DEFAULT_SPEED,
+  prevSelectionMethod: SelectionMethod = "elite",
+): SimState {
   const binTarget = encode(target);
   const population = Array.from({ length: POP_SIZE }, () => randomIndividual(target.length));
   const fits = population.map((ind) => wasmCalcFitness(ind, binTarget));
@@ -66,6 +70,7 @@ export function initState(target: string, prevSpeed = DEFAULT_SPEED): SimState {
     isRunning: false,
     speed: prevSpeed,
     solved: false,
+    selectionMethod: prevSelectionMethod,
   };
 }
 
@@ -74,7 +79,7 @@ export function stepState(prev: SimState): SimState {
     return { ...prev, isRunning: false };
   }
   const binTarget = encode(prev.target);
-  const newPop = wasmEvolve(prev.population, binTarget);
+  const newPop = wasmEvolve(prev.population, binTarget, prev.selectionMethod);
   const fits = newPop.map((ind) => wasmCalcFitness(ind, binTarget));
   const best = Math.max(...fits);
   const avg = fits.reduce((a, b) => a + b, 0) / POP_SIZE;

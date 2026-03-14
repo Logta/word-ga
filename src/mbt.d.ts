@@ -4,7 +4,7 @@ declare module "mbt:ga-core/src" {
   ): Promise<{
     exports: {
       calc_fitness: (ind: string, target: string) => number;
-      evolve: (popJoined: string, target: string) => string;
+      evolve: (popJoined: string, target: string, sel: number) => string;
       init_rng: (seed: number) => void;
     };
   }>;
