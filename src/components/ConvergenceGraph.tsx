@@ -1,94 +1,99 @@
+import { defineComponent, computed, type PropType } from "vue";
+import { Line } from "vue-chartjs";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-} from "recharts";
+  type ChartOptions,
+} from "chart.js";
 import type { HistoryEntry } from "../types";
 
-interface ConvergenceGraphProps {
-  history: HistoryEntry[];
-}
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const MAX_DISPLAY = 150;
 
-export function ConvergenceGraph({ history }: ConvergenceGraphProps) {
-  const data = history.slice(-MAX_DISPLAY).map((h) => ({
-    gen: h.generation,
-    best: +(h.best * 100).toFixed(1),
-    avg: +(h.avg * 100).toFixed(1),
-  }));
+const chartOptions: ChartOptions<"line"> = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: { duration: 0 },
+  scales: {
+    x: {
+      ticks: { color: "#9CA3AF", font: { size: 10 } },
+      grid: { color: "#374151" },
+      title: { display: true, text: "世代", color: "#6B7280", font: { size: 11 } },
+    },
+    y: {
+      min: 0,
+      max: 100,
+      ticks: {
+        color: "#9CA3AF",
+        font: { size: 10 },
+        callback: (v) => `${v}%`,
+      },
+      grid: { color: "#374151" },
+    },
+  },
+  plugins: {
+    legend: { labels: { color: "#9CA3AF", font: { size: 11 } } },
+    tooltip: {
+      backgroundColor: "#1F2937",
+      borderColor: "#374151",
+      borderWidth: 1,
+      titleColor: "#9CA3AF",
+      bodyColor: "#E5E7EB",
+      callbacks: {
+        label: (ctx) => `${ctx.dataset.label}: ${(ctx.parsed?.y ?? 0).toFixed(1)}%`,
+        title: (items) => `第 ${items[0]?.label} 世代`,
+      },
+    },
+  },
+};
 
-  return (
-    <div className="bg-gray-800 rounded-lg p-3 flex flex-col min-h-0">
-      <h2 className="text-cyan-400 font-bold mb-2 text-sm">収束グラフ</h2>
-      <div className="flex-1 min-h-0">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 5, right: 15, left: 0, bottom: 22 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis
-              dataKey="gen"
-              stroke="#4B5563"
-              tick={{ fontSize: 10, fill: "#9CA3AF" }}
-              label={{
-                value: "世代",
-                position: "insideBottom",
-                offset: -12,
-                fill: "#6B7280",
-                fontSize: 11,
-              }}
-            />
-            <YAxis
-              domain={[0, 100]}
-              stroke="#4B5563"
-              tick={{ fontSize: 10, fill: "#9CA3AF" }}
-              tickFormatter={(v) => `${v}%`}
-              width={42}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#1F2937",
-                border: "1px solid #374151",
-                borderRadius: "6px",
-                fontSize: "12px",
-              }}
-              formatter={(value, name) => [
-                `${Number(value).toFixed(1)}%`,
-                name === "best" ? "最高適応度" : "平均適応度",
-              ]}
-              labelFormatter={(label) => `第 ${label} 世代`}
-            />
-            <Legend
-              verticalAlign="top"
-              formatter={(value) => (value === "best" ? "最高適応度" : "平均適応度")}
-              wrapperStyle={{ fontSize: "11px", paddingBottom: "4px" }}
-            />
-            <Line
-              type="monotone"
-              dataKey="best"
-              stroke="#22C55E"
-              strokeWidth={2.5}
-              dot={false}
-              isAnimationActive={false}
-              name="best"
-            />
-            <Line
-              type="monotone"
-              dataKey="avg"
-              stroke="#FBBF24"
-              strokeWidth={1.5}
-              strokeDasharray="5 5"
-              dot={false}
-              isAnimationActive={false}
-              name="avg"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+export default defineComponent({
+  name: "ConvergenceGraph",
+  components: { Line },
+  props: {
+    history: { type: Array as PropType<HistoryEntry[]>, required: true as const },
+  },
+  setup(props) {
+    const chartData = computed(() => {
+      const recent = props.history.slice(-MAX_DISPLAY);
+      return {
+        labels: recent.map((h) => String(h.generation)),
+        datasets: [
+          {
+            label: "最高適応度",
+            data: recent.map((h) => +(h.best * 100).toFixed(1)),
+            borderColor: "#22C55E",
+            borderWidth: 2.5,
+            pointRadius: 0,
+            tension: 0,
+          },
+          {
+            label: "平均適応度",
+            data: recent.map((h) => +(h.avg * 100).toFixed(1)),
+            borderColor: "#FBBF24",
+            borderWidth: 1.5,
+            borderDash: [5, 5],
+            pointRadius: 0,
+            tension: 0,
+          },
+        ],
+      };
+    });
+
+    return () => (
+      <div class="bg-gray-800 rounded-lg p-3 flex flex-col min-h-0">
+        <h2 class="text-cyan-400 font-bold mb-2 text-sm">収束グラフ</h2>
+        <div class="flex-1 min-h-0" style={{ minHeight: "200px" }}>
+          <Line data={chartData.value} options={chartOptions} />
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+});

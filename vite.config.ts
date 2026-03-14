@@ -1,11 +1,13 @@
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
+import vue from "@vitejs/plugin-vue";
+import vueJsx from "@vitejs/plugin-vue-jsx";
 import moonbit from "vite-plugin-moonbit";
 
 export default defineConfig({
   base: "/word-ga/",
   plugins: [
-    react(),
+    vue(),
+    vueJsx(),
     moonbit({
       target: "wasm-gc",
       root: "moonbit",

@@ -33,7 +33,10 @@ export function decode(bin: string): string {
 }
 
 export function sanitize(raw: string): string {
-  return raw.toUpperCase().replace(/[^A-Z ]/g, "").slice(0, 20);
+  return raw
+    .toUpperCase()
+    .replace(/[^A-Z ]/g, "")
+    .slice(0, 20);
 }
 
 function randomBit(): string {
@@ -47,9 +50,7 @@ function randomIndividual(targetLen: number): Individual {
 
 export function initState(target: string, prevSpeed = 300): SimState {
   const binTarget = encode(target);
-  const population = Array.from({ length: POP_SIZE }, () =>
-    randomIndividual(target.length)
-  );
+  const population = Array.from({ length: POP_SIZE }, () => randomIndividual(target.length));
   const fits = population.map((ind) => wasmCalcFitness(ind, binTarget));
   const best = Math.max(...fits);
   const avg = fits.reduce((a, b) => a + b, 0) / POP_SIZE;

@@ -1,75 +1,73 @@
+import { defineComponent, type PropType } from "vue";
+
 const SPEED_MIN = 100;
 const SPEED_MAX = 1000;
 
-interface ControlsProps {
-  isRunning: boolean;
-  solved: boolean;
-  speed: number;
-  onStart: () => void;
-  onPause: () => void;
-  onStepOnce: () => void;
-  onReset: () => void;
-  onSpeedChange: (speed: number) => void;
-}
-
-export function Controls({
-  isRunning,
-  solved,
-  speed,
-  onStart,
-  onPause,
-  onStepOnce,
-  onReset,
-  onSpeedChange,
-}: ControlsProps) {
-  return (
-    <div className="flex flex-wrap items-center justify-center gap-3 p-3 bg-gray-800 rounded-lg">
-      {!isRunning ? (
+export default defineComponent({
+  name: "Controls",
+  props: {
+    isRunning: { type: Boolean, required: true as const },
+    solved: { type: Boolean, required: true as const },
+    speed: { type: Number, required: true as const },
+    onStart: { type: Function as PropType<() => void>, required: true as const },
+    onPause: { type: Function as PropType<() => void>, required: true as const },
+    onStepOnce: { type: Function as PropType<() => void>, required: true as const },
+    onReset: { type: Function as PropType<() => void>, required: true as const },
+    onSpeedChange: { type: Function as PropType<(speed: number) => void>, required: true as const },
+  },
+  setup(props) {
+    return () => (
+      <div class="flex flex-wrap items-center justify-center gap-3 p-3 bg-gray-800 rounded-lg">
+        {!props.isRunning ? (
+          <button
+            onClick={props.onStart}
+            disabled={props.solved}
+            class="px-5 py-2 bg-green-700 hover:bg-green-600 rounded font-bold
+                   disabled:opacity-40 transition-colors min-w-[90px]"
+          >
+            ▶ 開始
+          </button>
+        ) : (
+          <button
+            onClick={props.onPause}
+            class="px-5 py-2 bg-yellow-600 hover:bg-yellow-500 rounded font-bold
+                   transition-colors min-w-[90px]"
+          >
+            ⏸ 一時停止
+          </button>
+        )}
         <button
-          onClick={onStart}
-          disabled={solved}
-          className="px-5 py-2 bg-green-700 hover:bg-green-600 rounded font-bold
-                     disabled:opacity-40 transition-colors min-w-[90px]"
+          onClick={props.onStepOnce}
+          disabled={props.isRunning || props.solved}
+          class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded disabled:opacity-40 transition-colors"
         >
-          ▶ 開始
+          ⏭ 次の世代
         </button>
-      ) : (
         <button
-          onClick={onPause}
-          className="px-5 py-2 bg-yellow-600 hover:bg-yellow-500 rounded font-bold
-                     transition-colors min-w-[90px]"
+          onClick={props.onReset}
+          class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded transition-colors"
         >
-          ⏸ 一時停止
+          ↺ リセット
         </button>
-      )}
-      <button
-        onClick={onStepOnce}
-        disabled={isRunning || solved}
-        className="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded disabled:opacity-40 transition-colors"
-      >
-        ⏭ 次の世代
-      </button>
-      <button
-        onClick={onReset}
-        className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded transition-colors"
-      >
-        ↺ リセット
-      </button>
-      <div className="flex items-center gap-2">
-        <span className="text-gray-500 text-xs">遅い</span>
-        <input
-          type="range"
-          min={SPEED_MIN}
-          max={SPEED_MAX}
-          step={50}
-          // スライダー右端 = 速い（delay小）になるよう反転
-          value={SPEED_MIN + SPEED_MAX - speed}
-          onChange={(e) => onSpeedChange(SPEED_MIN + SPEED_MAX - Number(e.target.value))}
-          className="w-32 accent-cyan-400"
-        />
-        <span className="text-gray-500 text-xs">速い</span>
-        <span className="text-cyan-300 text-xs w-20 text-right">{speed}ms/世代</span>
+        <div class="flex items-center gap-2">
+          <span class="text-gray-500 text-xs">遅い</span>
+          <input
+            type="range"
+            min={SPEED_MIN}
+            max={SPEED_MAX}
+            step={50}
+            value={SPEED_MIN + SPEED_MAX - props.speed}
+            onInput={(e: Event) =>
+              props.onSpeedChange(
+                SPEED_MIN + SPEED_MAX - Number((e.target as HTMLInputElement).value),
+              )
+            }
+            class="w-32 accent-cyan-400"
+          />
+          <span class="text-gray-500 text-xs">速い</span>
+          <span class="text-cyan-300 text-xs w-20 text-right">{props.speed}ms/世代</span>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+});

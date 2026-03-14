@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { reactive, watch, onUnmounted } from "vue";
 import type { SimState } from "../types";
 import { initState, stepState, sanitize } from "../ga/core";
 
@@ -14,41 +14,52 @@ export interface SimulatorActions {
 }
 
 export function useSimulator(): [SimState, SimulatorActions] {
-  const [state, setState] = useState<SimState>(() => initState(DEFAULT_TARGET));
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const state = reactive<SimState>(initState(DEFAULT_TARGET));
+  let intervalId: ReturnType<typeof setInterval> | null = null;
 
-  useEffect(() => {
-    if (state.isRunning) {
-      intervalRef.current = setInterval(() => {
-        setState((prev) => stepState(prev));
-      }, state.speed);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+  const clearTimer = () => {
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = null;
     }
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [state.isRunning, state.speed]);
+  };
 
-  const start = useCallback(() => setState((p) => ({ ...p, isRunning: true })), []);
-  const pause = useCallback(() => setState((p) => ({ ...p, isRunning: false })), []);
-  const stepOnce = useCallback(() => setState((p) => stepState(p)), []);
-  const reset = useCallback(() => setState((p) => initState(p.target, p.speed)), []);
-  const setSpeed = useCallback(
-    (speed: number) => setState((p) => ({ ...p, speed })),
-    []
+  // flush: "sync" で依存変化と同期的に実行（React の useEffect に相当）
+  watch(
+    () => [state.isRunning, state.speed] as const,
+    ([isRunning, speed]) => {
+      clearTimer();
+      if (isRunning) {
+        intervalId = setInterval(() => {
+          Object.assign(state, stepState({ ...state } as SimState));
+        }, speed);
+      }
+    },
+    { flush: "sync" },
   );
-  const applyTarget = useCallback((rawInput: string) => {
+
+  onUnmounted(() => clearTimer());
+
+  const start = () => {
+    state.isRunning = true;
+  };
+  const pause = () => {
+    state.isRunning = false;
+  };
+  const stepOnce = () => {
+    Object.assign(state, stepState({ ...state } as SimState));
+  };
+  const reset = () => {
+    Object.assign(state, initState(state.target, state.speed));
+  };
+  const setSpeed = (speed: number) => {
+    state.speed = speed;
+  };
+  const applyTarget = (rawInput: string) => {
     const cleaned = sanitize(rawInput);
     if (!cleaned.trim()) return;
-    setState((p) => initState(cleaned, p.speed));
-  }, []);
+    Object.assign(state, initState(cleaned, state.speed));
+  };
 
-  return [state, { start, pause, stepOnce, reset, setSpeed, applyTarget }];
+  return [state as unknown as SimState, { start, pause, stepOnce, reset, setSpeed, applyTarget }];
 }
