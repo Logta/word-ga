@@ -13,5 +13,6 @@ _build/
 
 coveralls.json
 cobertura.xml
+mutation-report.html
 
 *.tsbuildinfo
