@@ -25,11 +25,9 @@ export function encode(text: string): string {
 }
 
 export function decode(bin: string): string {
-  let res = "";
-  for (let i = 0; i < bin.length; i += 5) {
-    res += binToChar(bin.slice(i, i + 5));
-  }
-  return res;
+  return Array.from({ length: bin.length / 5 }, (_, i) =>
+    binToChar(bin.slice(i * 5, i * 5 + 5)),
+  ).join("");
 }
 
 export function sanitize(raw: string): string {

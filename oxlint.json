@@ -3,8 +3,12 @@
   "plugins": ["typescript"],
   "rules": {
     "no-unused-vars": "error",
-    "no-console": "warn",
-    "typescript/no-explicit-any": "warn"
+    "no-console": "error",
+    "eqeqeq": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-shadow": "error",
+    "typescript/no-explicit-any": "error"
   },
   "ignorePatterns": ["src/mbt.d.ts"]
 }

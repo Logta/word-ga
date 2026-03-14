@@ -1,5 +1,4 @@
 import { defineComponent } from "vue";
-import type { Individual } from "../types";
 import GeneDisplay from "./GeneDisplay";
 
 export default defineComponent({
@@ -8,7 +7,7 @@ export default defineComponent({
     generation: { type: Number, required: true as const },
     bestFit: { type: Number, required: true as const },
     avgFit: { type: Number, required: true as const },
-    bestInd: { type: String as unknown as () => Individual, required: true as const },
+    bestInd: { type: String, required: true as const },
     target: { type: String, required: true as const },
   },
   setup(props) {
