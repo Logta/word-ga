@@ -8,6 +8,7 @@
   },
   "rules": {
     "no-magic-numbers": ["error", { "ignore": [0, 1, -1] }],
+    "consistent-type-definitions": ["error", "type"],
     "no-magic-numbers-in-enums": "off",
     "sort-keys": "off",
     "id-length": "off",
