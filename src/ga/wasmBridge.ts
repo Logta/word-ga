@@ -10,11 +10,13 @@ export async function initWasm(): Promise<void> {
   const { exports } = await init();
   _exports = exports;
   // eslint-disable-next-line no-magic-numbers
-  _exports.init_rng((Date.now() ^ Math.floor(Math.random() * 0x7FFF_FFFF)) | 0);
+  _exports.init_rng((Date.now() ^ Math.floor(Math.random() * 0x7fff_ffff)) | 0);
 }
 
 function wasm(): GaWasmExports {
-  if (_exports === undefined) { throw new Error("Wasm not initialized"); }
+  if (_exports === undefined) {
+    throw new Error("Wasm not initialized");
+  }
   return _exports;
 }
 

@@ -1,11 +1,12 @@
 import { defineComponent, computed, ref } from "vue";
-import { useSimulator } from "./hooks/useSimulator";
-import { calcFitness, encode, sanitize } from "./ga/core";
-import Header from "./components/Header";
+
 import Controls from "./components/Controls";
-import StatusBar from "./components/StatusBar";
-import IndividualList from "./components/IndividualList";
 import ConvergenceGraph from "./components/ConvergenceGraph";
+import Header from "./components/Header";
+import IndividualList from "./components/IndividualList";
+import StatusBar from "./components/StatusBar";
+import { calcFitness, encode, sanitize } from "./ga/core";
+import { useSimulator } from "./hooks/useSimulator";
 
 export default defineComponent({
   name: "App",
@@ -27,7 +28,7 @@ export default defineComponent({
     };
 
     return () => (
-      <div class="min-h-screen bg-gray-900 text-white font-mono flex flex-col p-3 gap-3 select-none">
+      <div class="flex min-h-screen flex-col gap-3 bg-gray-900 p-3 font-mono text-white select-none">
         <Header
           targetInput={targetInput.value}
           isRunning={state.isRunning}
@@ -52,11 +53,11 @@ export default defineComponent({
           target={state.target}
         />
         {state.solved && (
-          <div class="p-3 bg-green-900/80 border-2 border-green-500 rounded-lg text-center text-green-300 font-bold text-lg">
+          <div class="rounded-lg border-2 border-green-500 bg-green-900/80 p-3 text-center text-lg font-bold text-green-300">
             🎉 解発見！ 第 {state.generation} 世代で収束しました！
           </div>
         )}
-        <div class="grid grid-cols-2 gap-3 flex-1">
+        <div class="grid flex-1 grid-cols-2 gap-3">
           <IndividualList sorted={sorted.value} target={state.target} />
           <ConvergenceGraph history={state.history} />
         </div>

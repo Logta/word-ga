@@ -18,7 +18,8 @@
     "unicorn/filename-case": "off",
     "max-statements": "off",
     "init-declarations": "off",
-    "unicorn/numeric-separators-style": "off"
+    "unicorn/numeric-separators-style": "off",
+    "unicorn/number-literal-case": "off"
   },
   "overrides": [
     {

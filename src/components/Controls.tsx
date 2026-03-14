@@ -17,21 +17,19 @@ export default defineComponent({
   },
   setup(props) {
     return () => (
-      <div class="flex flex-wrap items-center justify-center gap-3 p-3 bg-gray-800 rounded-lg">
+      <div class="flex flex-wrap items-center justify-center gap-3 rounded-lg bg-gray-800 p-3">
         {!props.isRunning ? (
           <button
             onClick={props.onStart}
             disabled={props.solved}
-            class="px-5 py-2 bg-green-700 hover:bg-green-600 rounded font-bold
-                   disabled:opacity-40 transition-colors min-w-[90px]"
+            class="min-w-[90px] rounded bg-green-700 px-5 py-2 font-bold transition-colors hover:bg-green-600 disabled:opacity-40"
           >
             ▶ 開始
           </button>
         ) : (
           <button
             onClick={props.onPause}
-            class="px-5 py-2 bg-yellow-600 hover:bg-yellow-500 rounded font-bold
-                   transition-colors min-w-[90px]"
+            class="min-w-[90px] rounded bg-yellow-600 px-5 py-2 font-bold transition-colors hover:bg-yellow-500"
           >
             ⏸ 一時停止
           </button>
@@ -39,18 +37,18 @@ export default defineComponent({
         <button
           onClick={props.onStepOnce}
           disabled={props.isRunning || props.solved}
-          class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded disabled:opacity-40 transition-colors"
+          class="rounded bg-blue-700 px-4 py-2 transition-colors hover:bg-blue-600 disabled:opacity-40"
         >
           ⏭ 次の世代
         </button>
         <button
           onClick={props.onReset}
-          class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded transition-colors"
+          class="rounded bg-gray-600 px-4 py-2 transition-colors hover:bg-gray-500"
         >
           ↺ リセット
         </button>
         <div class="flex items-center gap-2">
-          <span class="text-gray-500 text-xs">遅い</span>
+          <span class="text-xs text-gray-500">遅い</span>
           <input
             type="range"
             min={SPEED_MIN}
@@ -64,8 +62,8 @@ export default defineComponent({
             }
             class="w-32 accent-cyan-400"
           />
-          <span class="text-gray-500 text-xs">速い</span>
-          <span class="text-cyan-300 text-xs w-20 text-right">{props.speed}ms/世代</span>
+          <span class="text-xs text-gray-500">速い</span>
+          <span class="w-20 text-right text-xs text-cyan-300">{props.speed}ms/世代</span>
         </div>
       </div>
     );

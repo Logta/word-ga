@@ -1,6 +1,7 @@
 import { reactive, watch, onUnmounted } from "vue";
-import type { SimState } from "../types";
+
 import { initState, stepState, sanitize } from "../ga/core";
+import type { SimState } from "../types";
 
 const DEFAULT_TARGET = "HELLO WORLD";
 
@@ -57,7 +58,9 @@ export function useSimulator(): [SimState, SimulatorActions] {
   };
   const applyTarget = (rawInput: string) => {
     const cleaned = sanitize(rawInput);
-    if (!cleaned.trim()) { return; }
+    if (!cleaned.trim()) {
+      return;
+    }
     Object.assign(state, initState(cleaned, state.speed));
   };
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as wasmBridge from "./wasmBridge";
+
 import {
   initState,
   stepState,
@@ -12,18 +12,18 @@ import {
   encode,
   decode,
 } from "./core";
+import * as wasmBridge from "./wasmBridge";
 
 // wasmBridgeをモック（Wasm不要）
-vi.mock("./wasmBridge", () => ({
-  wasmCalcFitness: vi.fn(),
-  wasmEvolve: vi.fn(),
-}));
+vi.mock("./wasmBridge", () => ({ wasmCalcFitness: vi.fn(), wasmEvolve: vi.fn() }));
 
 // 参照実装：文字一致率を計算
 function calcFitnessRef(ind: string, target: string): number {
   let m = 0;
   for (let i = 0; i < target.length; i++) {
-    if (ind[i] === target[i]) { m++; }
+    if (ind[i] === target[i]) {
+      m++;
+    }
   }
   return m / target.length;
 }
@@ -237,7 +237,9 @@ describe("stepState", () => {
 
   it("複数ステップで history が蓄積される", () => {
     let state = initState("HELLO");
-    for (let i = 0; i < 5; i++) { state = stepState(state); }
+    for (let i = 0; i < 5; i++) {
+      state = stepState(state);
+    }
     expect(state.generation).toBe(5);
     expect(state.history).toHaveLength(6);
   });

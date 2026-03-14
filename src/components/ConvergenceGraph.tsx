@@ -1,5 +1,3 @@
-import { defineComponent, computed, type PropType } from "vue";
-import { Line } from "vue-chartjs";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +9,9 @@ import {
   Legend,
   type ChartOptions,
 } from "chart.js";
+import { defineComponent, computed, type PropType } from "vue";
+import { Line } from "vue-chartjs";
+
 import type { HistoryEntry } from "../types";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -32,11 +33,7 @@ const chartOptions: ChartOptions<"line"> = {
     y: {
       min: 0,
       max: 100,
-      ticks: {
-        color: "#9CA3AF",
-        font: { size: 10 },
-        callback: (v) => `${v}%`,
-      },
+      ticks: { color: "#9CA3AF", font: { size: 10 }, callback: (v) => `${v}%` },
       grid: { color: "#374151" },
     },
   },
@@ -59,9 +56,7 @@ const chartOptions: ChartOptions<"line"> = {
 export default defineComponent({
   name: "ConvergenceGraph",
   components: { Line },
-  props: {
-    history: { type: Array as PropType<HistoryEntry[]>, required: true as const },
-  },
+  props: { history: { type: Array as PropType<HistoryEntry[]>, required: true as const } },
   setup(props) {
     const chartData = computed(() => {
       const recent = props.history.slice(-MAX_DISPLAY);
@@ -90,9 +85,9 @@ export default defineComponent({
     });
 
     return () => (
-      <div class="bg-gray-800 rounded-lg p-3 flex flex-col min-h-0">
-        <h2 class="text-cyan-400 font-bold mb-2 text-sm">収束グラフ</h2>
-        <div class="flex-1 min-h-0" style={{ minHeight: "200px" }}>
+      <div class="flex min-h-0 flex-col rounded-lg bg-gray-800 p-3">
+        <h2 class="mb-2 text-sm font-bold text-cyan-400">収束グラフ</h2>
+        <div class="min-h-0 flex-1" style={{ minHeight: "200px" }}>
           <Line data={chartData.value} options={chartOptions} />
         </div>
       </div>

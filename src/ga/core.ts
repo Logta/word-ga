@@ -70,7 +70,9 @@ export function initState(target: string, prevSpeed = DEFAULT_SPEED): SimState {
 }
 
 export function stepState(prev: SimState): SimState {
-  if (prev.solved) { return { ...prev, isRunning: false }; }
+  if (prev.solved) {
+    return { ...prev, isRunning: false };
+  }
   const binTarget = encode(prev.target);
   const newPop = wasmEvolve(prev.population, binTarget);
   const fits = newPop.map((ind) => wasmCalcFitness(ind, binTarget));
