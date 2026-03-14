@@ -31,6 +31,5 @@ export function wasmEvolve(
   target: string,
   selectionMethod: SelectionMethod = "elite",
 ): string[] {
-  const sel = selectionMethod === "roulette" ? 1 : 0;
-  return wasm().evolve(population.join(SEP), target, sel).split(SEP);
+  return wasm().evolve(population.join(SEP), target, selectionMethod).split(SEP);
 }

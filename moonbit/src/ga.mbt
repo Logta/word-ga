@@ -43,8 +43,8 @@ fn mutate(ind : String) -> String {
   buf.to_string()
 }
 
-///| sel=0: エリート選択、sel=1: ルーレット選択
-pub fn evolve(population_joined : String, target : String, sel : Int) -> String {
+///| sel="elite": エリート選択、sel="roulette": ルーレット選択
+pub fn evolve(population_joined : String, target : String, sel : String) -> String {
   let pop : Array[String] = population_joined
     .split(sep)
     .map(fn(sv) { sv.to_string() })
@@ -55,10 +55,9 @@ pub fn evolve(population_joined : String, target : String, sel : Int) -> String 
     calc_fitness(b, target).compare(calc_fitness(a, target))
   })
   let next : Array[String] = Array::new(capacity=pop_size)
-  let select = if sel == 1 {
-    fn(p : Array[String]) { roulette_select(p, target) }
-  } else {
-    fn(p : Array[String]) { elite_select(p) }
+  let select = match sel {
+    "roulette" => fn(p : Array[String]) { roulette_select(p, target) }
+    _ => fn(p : Array[String]) { elite_select(p) }
   }
   for _ in 0..<pop_size {
     let p1 = select(pop)

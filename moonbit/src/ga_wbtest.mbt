@@ -37,13 +37,13 @@ test "mutate: 出力文字が '0' または '1'" {
   }
 }
 
-// ─── evolve (method=0: エリート選択) ─────────────────────────────────────────
+// ─── evolve (method="elite": エリート選択) ───────────────────────────────────
 
 ///|
 test "evolve(elite): 出力個体数が入力と同じ (POP_SIZE=30)" {
   init_rng(42)
   let pop = Array::make(30, "00000")
-  let result = evolve(pop.join(sep), "11111", 0)
+  let result = evolve(pop.join(sep), "11111", "elite")
   let parts = result.split(sep).map(fn(sv) { sv.to_string() }).collect()
   assert_eq(parts.length(), 30)
 }
@@ -52,7 +52,7 @@ test "evolve(elite): 出力個体数が入力と同じ (POP_SIZE=30)" {
 test "evolve(elite): 各個体の長さがtargetと同じ" {
   init_rng(42)
   let pop = Array::make(30, "00000")
-  let result = evolve(pop.join(sep), "11111", 0)
+  let result = evolve(pop.join(sep), "11111", "elite")
   for ind in result.split(sep).map(fn(sv) { sv.to_string() }).collect() {
     assert_eq(ind.length(), 5)
   }
@@ -62,7 +62,7 @@ test "evolve(elite): 各個体の長さがtargetと同じ" {
 test "evolve(elite): 出力文字が '0' または '1'" {
   init_rng(42)
   let pop = Array::make(30, "00000")
-  let result = evolve(pop.join(sep), "11111", 0)
+  let result = evolve(pop.join(sep), "11111", "elite")
   for ind in result.split(sep).map(fn(sv) { sv.to_string() }).collect() {
     for c in ind {
       assert_eq(c == '0' || c == '1', true)
@@ -75,7 +75,7 @@ test "evolve(elite): pop_size=2でelite_count<2補正ブランチを通る" {
   // ec = floor(2 * 0.4) = 0 < 2 → elite_count = 2 に補正
   init_rng(42)
   let pop = Array::make(2, "10")
-  let result = evolve(pop.join(sep), "01", 0)
+  let result = evolve(pop.join(sep), "01", "elite")
   let parts = result.split(sep).map(fn(sv) { sv.to_string() }).collect()
   assert_eq(parts.length(), 2)
   for ind in parts {
@@ -88,7 +88,7 @@ test "evolve(elite): pop_size=5でelite_count>=2の通常ブランチ" {
   // ec = floor(5 * 0.4) = 2 >= 2 → elite_count = 2 のままelseブランチ
   init_rng(42)
   let pop = Array::make(5, "00000")
-  let result = evolve(pop.join(sep), "HELLO", 0)
+  let result = evolve(pop.join(sep), "HELLO", "elite")
   let parts = result.split(sep).map(fn(sv) { sv.to_string() }).collect()
   assert_eq(parts.length(), 5)
 }
@@ -99,7 +99,7 @@ test "evolve(elite): 完全一致個体は適応度ソートで先頭に来る" 
   let target = "01010"
   let pop = Array::make(29, "11111")
   pop.push("01010")
-  let result = evolve(pop.join(sep), target, 0)
+  let result = evolve(pop.join(sep), target, "elite")
   let parts = result.split(sep).map(fn(sv) { sv.to_string() }).collect()
   let has_target = parts.iter().any(fn(ind) { ind == "01010" })
   let _ = has_target
@@ -113,19 +113,19 @@ test "evolve(elite): 複数世代の連続実行で安定動作" {
   let pop = Array::make(30, "00000")
   let mut joined = pop.join(sep)
   for _ in 0..<10 {
-    joined = evolve(joined, target, 0)
+    joined = evolve(joined, target, "elite")
   }
   let parts = joined.split(sep).map(fn(sv) { sv.to_string() }).collect()
   assert_eq(parts.length(), 30)
 }
 
-// ─── evolve (method=1: ルーレット選択) ───────────────────────────────────────
+// ─── evolve (method="roulette": ルーレット選択) ──────────────────────────────
 
 ///|
 test "evolve(roulette): 出力個体数が入力と同じ (POP_SIZE=30)" {
   init_rng(42)
   let pop = Array::make(30, "00000")
-  let result = evolve(pop.join(sep), "11111", 1)
+  let result = evolve(pop.join(sep), "11111", "roulette")
   let parts = result.split(sep).map(fn(sv) { sv.to_string() }).collect()
   assert_eq(parts.length(), 30)
 }
@@ -134,7 +134,7 @@ test "evolve(roulette): 出力個体数が入力と同じ (POP_SIZE=30)" {
 test "evolve(roulette): 各個体の長さがtargetと同じ" {
   init_rng(42)
   let pop = Array::make(30, "00000")
-  let result = evolve(pop.join(sep), "11111", 1)
+  let result = evolve(pop.join(sep), "11111", "roulette")
   for ind in result.split(sep).map(fn(sv) { sv.to_string() }).collect() {
     assert_eq(ind.length(), 5)
   }
@@ -144,7 +144,7 @@ test "evolve(roulette): 各個体の長さがtargetと同じ" {
 test "evolve(roulette): 出力文字が '0' または '1'" {
   init_rng(42)
   let pop = Array::make(30, "00000")
-  let result = evolve(pop.join(sep), "11111", 1)
+  let result = evolve(pop.join(sep), "11111", "roulette")
   for ind in result.split(sep).map(fn(sv) { sv.to_string() }).collect() {
     for c in ind {
       assert_eq(c == '0' || c == '1', true)
@@ -159,7 +159,7 @@ test "evolve(roulette): 複数世代の連続実行で安定動作" {
   let pop = Array::make(30, "00000")
   let mut joined = pop.join(sep)
   for _ in 0..<10 {
-    joined = evolve(joined, target, 1)
+    joined = evolve(joined, target, "roulette")
   }
   let parts = joined.split(sep).map(fn(sv) { sv.to_string() }).collect()
   assert_eq(parts.length(), 30)
@@ -169,7 +169,7 @@ test "evolve(roulette): 複数世代の連続実行で安定動作" {
 test "evolve(roulette): 全適応度ゼロの集団でもクラッシュしない" {
   init_rng(1)
   let pop = Array::make(5, "00000")
-  let result = evolve(pop.join(sep), "11111", 1)
+  let result = evolve(pop.join(sep), "11111", "roulette")
   let parts = result.split(sep).map(fn(sv) { sv.to_string() }).collect()
   assert_eq(parts.length(), 5)
 }
