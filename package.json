@@ -26,7 +26,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "oxlint --config oxlint.json src/",
+    "lint": "oxlint --config oxlint.jsonc src/",
     "fmt": "oxfmt src/",
     "fmt:check": "oxfmt --check src/"
   },
