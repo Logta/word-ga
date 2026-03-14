@@ -43,8 +43,8 @@ fn mutate(ind : String) -> String {
   buf.to_string()
 }
 
-///|
-pub fn evolve(population_joined : String, target : String) -> String {
+///| sel=0: エリート選択、sel=1: ルーレット選択
+pub fn evolve(population_joined : String, target : String, sel : Int) -> String {
   let pop : Array[String] = population_joined
     .split(sep)
     .map(fn(sv) { sv.to_string() })
@@ -54,13 +54,15 @@ pub fn evolve(population_joined : String, target : String) -> String {
   pop.sort_by(fn(a, b) {
     calc_fitness(b, target).compare(calc_fitness(a, target))
   })
-  let ec = (pop_size.to_double() * elite_ratio).to_int()
-  let elite_count = if ec < 2 { 2 } else { ec }
-  // 次世代：全員をエリートからの交叉＋突然変異で生成
   let next : Array[String] = Array::new(capacity=pop_size)
+  let select = if sel == 1 {
+    fn(p : Array[String]) { roulette_select(p, target) }
+  } else {
+    fn(p : Array[String]) { elite_select(p) }
+  }
   for _ in 0..<pop_size {
-    let p1 = pop[rand_int(elite_count)]
-    let p2 = pop[rand_int(elite_count)]
+    let p1 = select(pop)
+    let p2 = select(pop)
     next.push(mutate(crossover(p1, p2)))
   }
   next.join(sep)
