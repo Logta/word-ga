@@ -1,6 +1,6 @@
-# ADR-014: 選択戦略をプラガブルにし、ルーレット選択を追加
+# ADR-014: 選択戦略を差し替え可能にし、ルーレット選択を追加
 
-**Status**: Accepted
+**Status**: Accepted（第3引数の型は ADR-015 で Int → String に変更）
 
 ## Context
 
