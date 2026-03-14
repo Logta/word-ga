@@ -2,6 +2,8 @@
   "name": "word-ga",
   "version": "0.1.0",
   "devDependencies": {
+    "@stryker-mutator/core": "^9.6.0",
+    "@stryker-mutator/vitest-runner": "^9.6.0",
     "@tailwindcss/postcss": "^4.2.1",
     "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^6.0.5",
@@ -28,7 +30,9 @@
     "test:coverage": "vitest run --coverage",
     "lint": "oxlint --config oxlint.jsonc src/",
     "fmt": "oxfmt src/",
-    "fmt:check": "oxfmt --check src/"
+    "fmt:check": "oxfmt --check src/",
+    "mutation": "bunx stryker run",
+    "mutation:moonbit": "node moonbit/mutation_test.mjs"
   },
   "type": "module",
   "dependencies": {
