@@ -1,6 +1,6 @@
 export type Individual = string;
 
-export type SelectionMethod = "elite" | "roulette";
+export type SelectionMethod = "elite" | "roulette" | "rank";
 
 export type HistoryEntry = { generation: number; best: number; avg: number; diversity: number };
 

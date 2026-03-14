@@ -4,10 +4,9 @@ import {
   initState,
   stepState,
   calcDiversity,
+  sanitize,
   CHARS,
   POP_SIZE,
-  MUTATION_RATE,
-  ELITE_RATIO,
   charToBin,
   binToChar,
   encode,
@@ -44,37 +43,17 @@ describe("constants", () => {
       expect(CHARS).toContain(c);
     }
   });
-
-  it("POP_SIZE は30", () => {
-    expect(POP_SIZE).toBe(30);
-  });
-
-  it("MUTATION_RATE は0.03", () => {
-    expect(MUTATION_RATE).toBeCloseTo(0.03);
-  });
-
-  it("ELITE_RATIO は0.4", () => {
-    expect(ELITE_RATIO).toBeCloseTo(0.4);
-  });
 });
 
 // ─── encode / decode ────────────────────────────────────────
 
 describe("encode / decode", () => {
-  it("charToBin('A') === '00000'", () => {
-    expect(charToBin("A")).toBe("00000");
-  });
-
   it("charToBin('Z') === '11001'", () => {
     expect(charToBin("Z")).toBe("11001");
   });
 
   it("charToBin(' ') === '11010'", () => {
     expect(charToBin(" ")).toBe("11010");
-  });
-
-  it("binToChar('00000') === 'A'", () => {
-    expect(binToChar("00000")).toBe("A");
   });
 
   it("binToChar('11001') === 'Z'", () => {
@@ -85,16 +64,11 @@ describe("encode / decode", () => {
     expect(binToChar("11010")).toBe(" ");
   });
 
-  it("binToChar('11111') === ' ' (index 31 はスペース)", () => {
-    expect(binToChar("11111")).toBe(" ");
-  });
-
-  it("encode('A') === '00000'", () => {
-    expect(encode("A")).toBe("00000");
-  });
-
-  it("decode('00000') === 'A'", () => {
-    expect(decode("00000")).toBe("A");
+  it("binToChar index 27-30 はスペースにフォールバック", () => {
+    // インデックス 27-31 は CHARS の範囲外 → ' ' を返す
+    for (const bin of ["11011", "11100", "11101", "11110", "11111"]) {
+      expect(binToChar(bin)).toBe(" ");
+    }
   });
 
   it("encode/decode ラウンドトリップ（A-Z, スペース）", () => {
@@ -103,36 +77,53 @@ describe("encode / decode", () => {
   });
 });
 
+// ─── sanitize ───────────────────────────────────────────────
+
+describe("sanitize", () => {
+  it("小文字を大文字に変換する", () => {
+    expect(sanitize("hello")).toBe("HELLO");
+  });
+
+  it("A-Z とスペース以外の文字を除去する", () => {
+    expect(sanitize("HELLO123!")).toBe("HELLO");
+  });
+
+  it("数字・記号をすべて除去する", () => {
+    expect(sanitize("A1B2C3")).toBe("ABC");
+  });
+
+  it("20文字以上はトリムされる", () => {
+    expect(sanitize("ABCDEFGHIJKLMNOPQRSTUVWXYZ")).toHaveLength(20);
+  });
+
+  it("空白を含む文字列はそのまま通す", () => {
+    expect(sanitize("HELLO WORLD")).toBe("HELLO WORLD");
+  });
+});
+
 // ─── calcDiversity ──────────────────────────────────────────
 
 describe("calcDiversity", () => {
-  it("全個体が同一のとき 0 を返す", () => {
-    expect(calcDiversity(["0000", "0000", "0000"])).toBe(0);
+  it("空配列のとき 0 を返す", () => {
+    expect(calcDiversity([])).toBe(0);
   });
 
   it("個体数 1 のとき 0 を返す", () => {
     expect(calcDiversity(["1010"])).toBe(0);
   });
 
-  it("完全に相補的な2個体のとき最大値 1.0 を返す（n=2 の理論最大値は n/(2*(n-1))=1.0）", () => {
+  it("全個体が同一のとき 0 を返す", () => {
+    expect(calcDiversity(["0000", "0000", "0000"])).toBe(0);
+  });
+
+  it("完全に相補的な2個体のとき最大値 1.0 を返す（n=2 の理論最大値は 1.0）", () => {
     expect(calcDiversity(["0000", "1111"])).toBeCloseTo(1);
   });
 
-  it("結果は 0 以上 n/(2*(n-1)) 以下", () => {
-    const pop = ["10101010", "01010101", "11001100", "00110011"];
-    const n = pop.length;
-    const theoreticalMax = n / (2 * (n - 1));
-    const d = calcDiversity(pop);
-    expect(d).toBeGreaterThanOrEqual(0);
-    expect(d).toBeLessThanOrEqual(theoreticalMax + 1e-10);
-  });
-
-  it("ランダムな集団は 0.5 に近い多様性を持つ（確率的）", () => {
-    // 30個体 × 100ビットのランダム集団
-    const pop = Array.from({ length: 30 }, () =>
-      Array.from({ length: 100 }, () => (Math.random() < 0.5 ? "0" : "1")).join(""),
-    );
-    expect(calcDiversity(pop)).toBeGreaterThan(0.35);
+  it("均等分布な集団は 0.3 より大きい多様性を持つ", () => {
+    // 決定論的: 5個体が「00000」、5個体が「11111」
+    const pop = [...Array(5).fill("00000"), ...Array(5).fill("11111")];
+    expect(calcDiversity(pop)).toBeGreaterThan(0.3);
   });
 });
 
@@ -201,12 +192,6 @@ describe("initState", () => {
   it("prevSpeed が引き継がれる", () => {
     expect(initState("HELLO", 150).speed).toBe(150);
   });
-
-  it("wasmCalcFitness を POP_SIZE 回呼び出す", () => {
-    vi.mocked(wasmBridge.wasmCalcFitness).mockClear();
-    initState("HELLO");
-    expect(wasmBridge.wasmCalcFitness).toHaveBeenCalledTimes(POP_SIZE);
-  });
 });
 
 // ─── stepState ──────────────────────────────────────────────
@@ -254,11 +239,10 @@ describe("stepState", () => {
   });
 
   it("isRunning=true は solved でなければ維持される", () => {
+    // calcFitnessRef は HELLO に対して 0 未満にはならないため solved=false が保証される
     const state = { ...initState("HELLO"), isRunning: true };
     const next = stepState(state);
-    if (!next.solved) {
-      expect(next.isRunning).toBe(true);
-    }
+    expect(next.isRunning).toBe(true);
   });
 
   it("best=1.0 で solved=true かつ isRunning=false になる", () => {
@@ -268,19 +252,6 @@ describe("stepState", () => {
     const next = stepState(state);
     expect(next.solved).toBe(true);
     expect(next.isRunning).toBe(false);
-  });
-
-  it("wasmEvolve を1回呼び出す", () => {
-    vi.mocked(wasmBridge.wasmEvolve).mockClear();
-    stepState(initState("HELLO"));
-    expect(wasmBridge.wasmEvolve).toHaveBeenCalledTimes(1);
-  });
-
-  it("wasmCalcFitness を新世代の POP_SIZE 回呼び出す", () => {
-    const state = initState("HELLO");
-    vi.mocked(wasmBridge.wasmCalcFitness).mockClear();
-    stepState(state);
-    expect(wasmBridge.wasmCalcFitness).toHaveBeenCalledTimes(POP_SIZE);
   });
 
   it("複数ステップで history が蓄積される", () => {

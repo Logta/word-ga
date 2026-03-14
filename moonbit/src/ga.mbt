@@ -62,6 +62,7 @@ pub fn evolve(
   let next : Array[String] = Array::new(capacity=pop_size)
   let select = match sel {
     "roulette" => fn(p : Array[String]) { roulette_select(p, target) }
+    "rank" => fn(p : Array[String]) { rank_select(p) }
     _ => fn(p : Array[String]) { elite_select(p) }
   }
   for _ in 0..<pop_size {

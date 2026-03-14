@@ -67,6 +67,7 @@ export default defineComponent({
           >
             <option value="elite">エリート</option>
             <option value="roulette">ルーレット</option>
+            <option value="rank">ランク</option>
           </select>
         </div>
         <div class="flex items-center gap-2">

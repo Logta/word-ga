@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { defineComponent, nextTick } from "vue";
 
 import { useSimulator } from "./useSimulator";
@@ -35,9 +35,20 @@ vi.mock("../ga/wasmBridge", () => ({
   wasmEvolve: vi.fn((pop: string[]) => [...pop]),
 }));
 
+// fake timerは自動進化テストのみで使用。describe内のbeforeEach/afterEachでセットアップ・クリーンアップする
+let usingFakeTimers = false;
+
 afterEach(() => {
-  vi.useRealTimers();
+  if (usingFakeTimers) {
+    vi.useRealTimers();
+    usingFakeTimers = false;
+  }
 });
+
+function useFakeTimersForTest() {
+  vi.useFakeTimers();
+  usingFakeTimers = true;
+}
 
 // ─── 初期状態 ────────────────────────────────────────────────
 
@@ -136,8 +147,10 @@ describe("reset", () => {
     expect(result.value[0].speed).toBe(50);
   });
 
-  it("reset 後に isRunning=false", async () => {
+  it("start() 後に reset すると isRunning=false", async () => {
     const { result } = renderHook(() => useSimulator());
+    result.value[1].start();
+    await nextTick();
     result.value[1].reset();
     await nextTick();
     expect(result.value[0].isRunning).toBe(false);
@@ -191,11 +204,12 @@ describe("applyTarget", () => {
   });
 });
 
-// ─── 自動進化（フェイクタイマー）──────────────────────────────
-
 describe("自動進化", () => {
+  beforeEach(() => {
+    useFakeTimersForTest();
+  });
+
   it("isRunning=true 中はインターバルで世代が進む", async () => {
-    vi.useFakeTimers();
     const { result } = renderHook(() => useSimulator());
     result.value[1].start();
     await nextTick();
@@ -205,7 +219,6 @@ describe("自動進化", () => {
   });
 
   it("pause 後はインターバルが止まる", async () => {
-    vi.useFakeTimers();
     const { result } = renderHook(() => useSimulator());
     result.value[1].start();
     await nextTick();
@@ -220,7 +233,6 @@ describe("自動進化", () => {
   });
 
   it("speed に応じたインターバルで進化する", async () => {
-    vi.useFakeTimers();
     const { result } = renderHook(() => useSimulator());
     result.value[1].setSpeed(100);
     await nextTick();

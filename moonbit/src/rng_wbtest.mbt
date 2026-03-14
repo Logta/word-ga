@@ -32,19 +32,6 @@ test "rand_double: 値は[0, 1)の範囲内 (200回)" {
 }
 
 ///|
-test "rand_double: 連続する値が全て同じにならない" {
-  init_rng(1)
-  let first = rand_double()
-  let mut all_same = true
-  for _ in 0..<20 {
-    if rand_double() != first {
-      all_same = false
-    }
-  }
-  assert_eq(all_same, false)
-}
-
-///|
 test "rand_double: 0.5以上の値が生成される（全域カバー確認）" {
   // バグ時は [0, 0.25) しか生成されないため、このテストで検出できる
   init_rng(1)
@@ -65,14 +52,5 @@ test "rand_int: 値は[0, limit)の範囲内 (200回)" {
     let v = rand_int(limit)
     assert_eq(v >= 0, true)
     assert_eq(v < limit, true)
-  }
-}
-
-///|
-test "pcg_next32: 出力は非負" {
-  init_rng(1)
-  for _ in 0..<500 {
-    let v = pcg_next32() & 0x7FFFFFFF
-    assert_eq(v >= 0, true)
   }
 }

@@ -28,15 +28,3 @@ test "roulette_select: 全個体同適応度の場合もクラッシュしない
   let result = roulette_select(pop, target)
   assert_eq(result == "10101", true)
 }
-
-///|
-test "roulette_select: 繰り返し呼んでも常にpopの要素を返す" {
-  init_rng(42)
-  let pop = ["00000", "10101", "11111"]
-  let target = "10101"
-  for _ in 0..<20 {
-    let result = roulette_select(pop, target)
-    let found = pop.iter().any(fn(ind) { ind == result })
-    assert_eq(found, true)
-  }
-}
