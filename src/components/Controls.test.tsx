@@ -88,7 +88,7 @@ describe("Controls", () => {
   it("スライダーの value は SPEED_MIN + SPEED_MAX - speed（反転）", () => {
     const wrapper = mount(Controls, { props: makeProps({ speed: 200 }) });
     const expected = String(SPEED_MIN + SPEED_MAX - 200); // 900
-    expect(wrapper.find("input[type=range]").element.value).toBe(expected);
+    expect((wrapper.find("input[type=range]").element as HTMLInputElement).value).toBe(expected);
   });
 
   it("スライダー変更で onSpeedChange が反転値で呼ばれる", async () => {
