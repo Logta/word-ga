@@ -8,7 +8,7 @@ function renderHook<T>(composable: () => T) {
   const Wrapper = defineComponent({
     setup() {
       result = composable();
-      return () => null;
+      return () => undefined;
     },
   });
   mount(Wrapper, { attachTo: document.createElement("div") });
@@ -25,7 +25,7 @@ vi.mock("../ga/wasmBridge", () => ({
   wasmCalcFitness: vi.fn((ind: string, target: string) => {
     let m = 0;
     for (let i = 0; i < target.length; i++) {
-      if (ind[i] === target[i]) m++;
+      if (ind[i] === target[i]) { m++; }
     }
     return m / target.length;
   }),

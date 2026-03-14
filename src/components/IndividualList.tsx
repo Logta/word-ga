@@ -3,11 +3,14 @@ import type { Individual } from "../types";
 import GeneDisplay from "./GeneDisplay";
 
 const ELITE_DISPLAY_COUNT = 3;
+const FIT_HIGH = 0.8;
+const FIT_MID = 0.5;
+const PERCENT = 100;
 
 function fitBarColor(fit: number, isElite: boolean): string {
-  if (isElite) return "bg-yellow-400";
-  if (fit >= 0.8) return "bg-green-400";
-  if (fit >= 0.5) return "bg-blue-400";
+  if (isElite) { return "bg-yellow-400"; }
+  if (fit >= FIT_HIGH) { return "bg-green-400"; }
+  if (fit >= FIT_MID) { return "bg-blue-400"; }
   return "bg-gray-500";
 }
 
@@ -52,7 +55,7 @@ export default defineComponent({
                 <div class="w-16 sm:w-24 bg-gray-600 rounded-full h-1.5 shrink-0">
                   <div
                     class={`h-1.5 rounded-full transition-all duration-150 ${fitBarColor(fit, isElite)}`}
-                    style={{ width: `${fit * 100}%` }}
+                    style={{ width: `${fit * PERCENT}%` }}
                   />
                 </div>
                 <span
@@ -60,7 +63,7 @@ export default defineComponent({
                     isElite ? "text-yellow-300" : "text-gray-400"
                   }`}
                 >
-                  {(fit * 100).toFixed(0)}%
+                  {(fit * PERCENT).toFixed(0)}%
                 </span>
               </div>
             );

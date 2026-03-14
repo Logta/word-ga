@@ -23,7 +23,7 @@ vi.mock("./wasmBridge", () => ({
 function calcFitnessRef(ind: string, target: string): number {
   let m = 0;
   for (let i = 0; i < target.length; i++) {
-    if (ind[i] === target[i]) m++;
+    if (ind[i] === target[i]) { m++; }
   }
   return m / target.length;
 }
@@ -215,7 +215,7 @@ describe("stepState", () => {
 
   it("best=1.0 で solved=true かつ isRunning=false になる", () => {
     vi.mocked(wasmBridge.wasmEvolve).mockReturnValue(["HI", "HI"]);
-    vi.mocked(wasmBridge.wasmCalcFitness).mockReturnValue(1.0);
+    vi.mocked(wasmBridge.wasmCalcFitness).mockReturnValue(1);
     const state = { ...initState("HI"), isRunning: true };
     const next = stepState(state);
     expect(next.solved).toBe(true);
@@ -237,7 +237,7 @@ describe("stepState", () => {
 
   it("複数ステップで history が蓄積される", () => {
     let state = initState("HELLO");
-    for (let i = 0; i < 5; i++) state = stepState(state);
+    for (let i = 0; i < 5; i++) { state = stepState(state); }
     expect(state.generation).toBe(5);
     expect(state.history).toHaveLength(6);
   });

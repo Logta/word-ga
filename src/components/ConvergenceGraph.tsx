@@ -16,6 +16,8 @@ import type { HistoryEntry } from "../types";
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const MAX_DISPLAY = 150;
+const PERCENT = 100;
+const DASH_PATTERN = [5, 5]; // eslint-disable-line no-magic-numbers
 
 const chartOptions: ChartOptions<"line"> = {
   responsive: true,
@@ -68,7 +70,7 @@ export default defineComponent({
         datasets: [
           {
             label: "最高適応度",
-            data: recent.map((h) => +(h.best * 100).toFixed(1)),
+            data: recent.map((h) => Number((h.best * PERCENT).toFixed(1))),
             borderColor: "#22C55E",
             borderWidth: 2.5,
             pointRadius: 0,
@@ -76,10 +78,10 @@ export default defineComponent({
           },
           {
             label: "平均適応度",
-            data: recent.map((h) => +(h.avg * 100).toFixed(1)),
+            data: recent.map((h) => Number((h.avg * PERCENT).toFixed(1))),
             borderColor: "#FBBF24",
             borderWidth: 1.5,
-            borderDash: [5, 5],
+            borderDash: DASH_PATTERN,
             pointRadius: 0,
             tension: 0,
           },

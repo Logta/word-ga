@@ -15,12 +15,12 @@ export interface SimulatorActions {
 
 export function useSimulator(): [SimState, SimulatorActions] {
   const state = reactive<SimState>(initState(DEFAULT_TARGET));
-  let intervalId: ReturnType<typeof setInterval> | null = null;
+  let intervalId: ReturnType<typeof setInterval> | undefined;
 
   const clearTimer = () => {
-    if (intervalId !== null) {
+    if (intervalId !== undefined) {
       clearInterval(intervalId);
-      intervalId = null;
+      intervalId = undefined;
     }
   };
 
@@ -57,7 +57,7 @@ export function useSimulator(): [SimState, SimulatorActions] {
   };
   const applyTarget = (rawInput: string) => {
     const cleaned = sanitize(rawInput);
-    if (!cleaned.trim()) return;
+    if (!cleaned.trim()) { return; }
     Object.assign(state, initState(cleaned, state.speed));
   };
 

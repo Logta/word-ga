@@ -1,6 +1,8 @@
 import { defineComponent } from "vue";
 import GeneDisplay from "./GeneDisplay";
 
+const PERCENT = 100;
+
 export default defineComponent({
   name: "StatusBar",
   props: {
@@ -20,13 +22,13 @@ export default defineComponent({
         <div>
           <div class="text-gray-500 text-xs mb-0.5">最高適応度</div>
           <div class="text-green-400 font-bold text-xl tabular-nums">
-            {(props.bestFit * 100).toFixed(1)}%
+            {(props.bestFit * PERCENT).toFixed(1)}%
           </div>
         </div>
         <div>
           <div class="text-gray-500 text-xs mb-0.5">平均適応度</div>
           <div class="text-yellow-400 font-bold text-xl tabular-nums">
-            {(props.avgFit * 100).toFixed(1)}%
+            {(props.avgFit * PERCENT).toFixed(1)}%
           </div>
         </div>
         <div>

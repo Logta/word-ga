@@ -9,15 +9,13 @@ export default defineComponent({
   },
   setup(props) {
     return () =>
-      decode(props.ind)
-        .split("")
-        .map((ch, i) => (
-          <span
-            key={i}
-            class={ch === props.target[i] ? "text-green-400 font-bold" : "text-red-400"}
-          >
-            {ch === " " ? "\u00A0" : ch}
-          </span>
-        ));
+      [...decode(props.ind)].map((ch, i) => (
+        <span
+          key={i}
+          class={ch === props.target[i] ? "text-green-400 font-bold" : "text-red-400"}
+        >
+          {ch === " " ? "\u00A0" : ch}
+        </span>
+      ));
   },
 });
