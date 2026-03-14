@@ -80,6 +80,15 @@ export default defineComponent({
             pointRadius: 0,
             tension: 0,
           },
+          {
+            label: "多様性",
+            data: recent.map((h) => Number((h.diversity * PERCENT).toFixed(1))),
+            borderColor: "#A78BFA",
+            borderWidth: 1.5,
+            borderDash: DASH_PATTERN,
+            pointRadius: 0,
+            tension: 0,
+          },
         ],
       };
     });

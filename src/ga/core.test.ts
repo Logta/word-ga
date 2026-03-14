@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   initState,
   stepState,
+  calcDiversity,
   CHARS,
   POP_SIZE,
   MUTATION_RATE,
@@ -102,6 +103,39 @@ describe("encode / decode", () => {
   });
 });
 
+// ─── calcDiversity ──────────────────────────────────────────
+
+describe("calcDiversity", () => {
+  it("全個体が同一のとき 0 を返す", () => {
+    expect(calcDiversity(["0000", "0000", "0000"])).toBe(0);
+  });
+
+  it("個体数 1 のとき 0 を返す", () => {
+    expect(calcDiversity(["1010"])).toBe(0);
+  });
+
+  it("完全に相補的な2個体のとき最大値 1.0 を返す（n=2 の理論最大値は n/(2*(n-1))=1.0）", () => {
+    expect(calcDiversity(["0000", "1111"])).toBeCloseTo(1.0);
+  });
+
+  it("結果は 0 以上 n/(2*(n-1)) 以下", () => {
+    const pop = ["10101010", "01010101", "11001100", "00110011"];
+    const n = pop.length;
+    const theoreticalMax = n / (2 * (n - 1));
+    const d = calcDiversity(pop);
+    expect(d).toBeGreaterThanOrEqual(0);
+    expect(d).toBeLessThanOrEqual(theoreticalMax + 1e-10);
+  });
+
+  it("ランダムな集団は 0.5 に近い多様性を持つ（確率的）", () => {
+    // 30個体 × 100ビットのランダム集団
+    const pop = Array.from({ length: 30 }, () =>
+      Array.from({ length: 100 }, () => (Math.random() < 0.5 ? "0" : "1")).join(""),
+    );
+    expect(calcDiversity(pop)).toBeGreaterThan(0.35);
+  });
+});
+
 // ─── initState ──────────────────────────────────────────────
 
 describe("initState", () => {
@@ -153,6 +187,13 @@ describe("initState", () => {
     expect(history[0].avg).toBeLessThanOrEqual(history[0].best);
   });
 
+  it("history の diversity は 0 以上 n/(2*(n-1)) 以下", () => {
+    const { history } = initState("HELLO");
+    const theoreticalMax = POP_SIZE / (2 * (POP_SIZE - 1));
+    expect(history[0].diversity).toBeGreaterThanOrEqual(0);
+    expect(history[0].diversity).toBeLessThanOrEqual(theoreticalMax + 1e-10);
+  });
+
   it("デフォルト speed は300", () => {
     expect(initState("HELLO").speed).toBe(300);
   });
@@ -196,6 +237,13 @@ describe("stepState", () => {
     expect(history[1].best).toBeLessThanOrEqual(1);
     expect(history[1].avg).toBeGreaterThanOrEqual(0);
     expect(history[1].avg).toBeLessThanOrEqual(1);
+  });
+
+  it("新しい history エントリーの diversity は 0 以上 n/(2*(n-1)) 以下", () => {
+    const { history } = stepState(initState("HELLO"));
+    const theoreticalMax = POP_SIZE / (2 * (POP_SIZE - 1));
+    expect(history[1].diversity).toBeGreaterThanOrEqual(0);
+    expect(history[1].diversity).toBeLessThanOrEqual(theoreticalMax + 1e-10);
   });
 
   it("speed と target を引き継ぐ", () => {

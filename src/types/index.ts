@@ -6,6 +6,7 @@ export interface HistoryEntry {
   generation: number;
   best: number;
   avg: number;
+  diversity: number;
 }
 
 export interface SimState {

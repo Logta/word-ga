@@ -11,6 +11,26 @@ export const DEFAULT_SPEED = 300;
 
 export const calcFitness = wasmCalcFitness;
 
+// 平均ペアワイズハミング距離を染色体長で正規化した多様性指標
+// 理論最大値は n/(2*(n-1))。n=30 では約 0.517、n→∞ で 0.5 に収束
+// 各ビット位置で 1 の個数 k を数えれば k*(n-k) が「そのビットで差がある個体ペア数」になる
+export function calcDiversity(population: Individual[]): number {
+  const n = population.length;
+  if (n < 2) return 0;
+  const L = population[0].length;
+  if (L === 0) return 0;
+  let totalDiff = 0;
+  for (let p = 0; p < L; p++) {
+    let ones = 0;
+    for (const ind of population) {
+      if (ind[p] === "1") ones++;
+    }
+    totalDiff += ones * (n - ones);
+  }
+  const pairs = (n * (n - 1)) / 2;
+  return totalDiff / pairs / L;
+}
+
 export function charToBin(char: string): string {
   const index = CHARS.indexOf(char);
   const safeIndex = index === -1 ? 0 : index;
@@ -66,7 +86,7 @@ export function initState(
     target,
     population,
     generation: 0,
-    history: [{ generation: 0, best, avg }],
+    history: [{ generation: 0, best, avg, diversity: calcDiversity(population) }],
     isRunning: false,
     speed: prevSpeed,
     solved: false,
@@ -89,7 +109,7 @@ export function stepState(prev: SimState): SimState {
     ...prev,
     population: newPop,
     generation,
-    history: [...prev.history, { generation, best, avg }],
+    history: [...prev.history, { generation, best, avg, diversity: calcDiversity(newPop) }],
     isRunning: solved ? false : prev.isRunning,
     solved,
   };
