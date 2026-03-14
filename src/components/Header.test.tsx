@@ -1,6 +1,9 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
 
+// Header.tsx が core.ts 経由で wasmBridge を参照するため CI 環境でも解決できるようモックする
+vi.mock("../ga/wasmBridge", () => ({ wasmCalcFitness: vi.fn(), wasmEvolve: vi.fn() }));
+
 import Header from "./Header";
 
 const makeProps = (overrides: Record<string, unknown> = {}) => ({
