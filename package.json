@@ -14,7 +14,7 @@
     "oxlint": "^1.55.0",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.1-rc",
     "vite": "^8.0.0",
     "vite-plugin-moonbit": "^0.1.5",
     "vitest": "^4.1.0"

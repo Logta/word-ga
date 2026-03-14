@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "allowArbitraryExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "jsx": "preserve",
