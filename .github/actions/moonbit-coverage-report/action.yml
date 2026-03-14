@@ -14,35 +14,59 @@ runs:
       shell: bash
       run: |
         cd "${{ inputs.working-directory }}"
+        moon coverage clean
         moon test --enable-coverage
-        moon coverage report -f summary \
-          | tee "$GITHUB_WORKSPACE/.moonbit-coverage.txt"
+        moon coverage report -f cobertura
 
     - name: Post PR comment
       uses: actions/github-script@v7
       with:
         script: |
           const fs = require('fs');
-          const raw = fs.readFileSync(
-            `${process.env.GITHUB_WORKSPACE}/.moonbit-coverage.txt`,
-            'utf8',
-          ).trim();
+          const path = require('path');
 
-          // Extract overall percentage for the header (e.g. "98.60%")
-          const match = raw.match(/(\d+\.\d+)%/g);
-          const overall = match ? match[match.length - 1] : null;
-          const badge = overall
-            ? ` — **${overall}**`
-            : '';
+          const coberturaPath = path.join(
+            process.env.GITHUB_WORKSPACE,
+            '${{ inputs.working-directory }}',
+            'cobertura.xml',
+          );
+          const xml = fs.readFileSync(coberturaPath, 'utf8');
+
+          // Overall counts
+          const totalValid = parseInt(xml.match(/lines-valid="(\d+)"/)?.[1] ?? '0');
+          const totalCovered = parseInt(xml.match(/lines-covered="(\d+)"/)?.[1] ?? '0');
+          const overallPct = totalValid > 0
+            ? ((totalCovered / totalValid) * 100).toFixed(1)
+            : '0.0';
+
+          // Per-file: split on <class ...> boundaries
+          const classRe = /<class\s+name="([^"]+)"\s+filename="([^"]+)"\s+line-rate="([\d.]+)"[^>]*>([\s\S]*?)<\/class>/g;
+          const files = [];
+          for (const m of xml.matchAll(classRe)) {
+            const filename = m[2];
+            const linesXml = m[4];
+            const allLines = [...linesXml.matchAll(/hits="(\d+)"/g)];
+            const valid = allLines.length;
+            const covered = allLines.filter((l) => parseInt(l[1]) > 0).length;
+            const pct = valid > 0 ? ((covered / valid) * 100).toFixed(1) : '0.0';
+            files.push({ filename, covered, valid, pct });
+          }
+
+          files.sort((a, b) => a.filename.localeCompare(b.filename));
+
+          const rows = files
+            .map((f) => `| \`${f.filename}\` | ${f.covered}/${f.valid} | ${f.pct}% |`)
+            .join('\n');
 
           const MARKER = '<!-- moonbit-coverage-report -->';
           const body = [
             MARKER,
-            `## 🌙 MoonBit Coverage${badge}`,
+            `## 🌙 MoonBit Coverage — **${overallPct}%**`,
             '',
-            '```',
-            raw,
-            '```',
+            '| File | Lines | Coverage |',
+            '|------|------:|---------:|',
+            rows,
+            `| **Total** | **${totalCovered}/${totalValid}** | **${overallPct}%** |`,
           ].join('\n');
 
           const { data: comments } = await github.rest.issues.listComments({
@@ -51,7 +75,7 @@ runs:
             issue_number: context.issue.number,
           });
 
-          const existing = comments.find(c => c.body.includes(MARKER));
+          const existing = comments.find((c) => c.body.includes(MARKER));
 
           if (existing) {
             await github.rest.issues.updateComment({
