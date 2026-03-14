@@ -1,0 +1,52 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "style": "error",
+    "perf": "error"
+  },
+  "rules": {
+    // 0, 1, -1 以外のマジックナンバーを禁止
+    "no-magic-numbers": ["error", { "ignore": [0, 1, -1] }],
+    // interface ではなく type を強制
+    "consistent-type-definitions": ["error", "type"],
+
+    // --- 以下は off のまま推奨 ---
+
+    // enum の値（例: Elite = 0）は数値で書くのが自然
+    "no-magic-numbers-in-enums": "off",
+    // キー順はデータの意味に沿って書く方が読みやすい
+    "sort-keys": "off",
+    // n, L, p など数学的変数名を許可
+    "id-length": "off",
+    // 三項演算子は条件式として自然
+    "no-ternary": "off",
+    // TODO, NOTE などの小文字コメントを許可
+    "capitalized-comments": "off",
+    // oxfmt の sortImports が自動整列するため二重管理しない
+    "sort-imports": "off",
+    // function 宣言と arrow function を用途で使い分けたい
+    "func-style": "off",
+    // コンポーネント（PascalCase）と設定ファイル（kebab-case）の混在は正当
+    "unicorn/filename-case": "off",
+    // GA の evolve 系は本質的に処理が長い
+    "max-statements": "off",
+    // ループカウンタなど宣言時初期化できないケースがある
+    "init-declarations": "off",
+    // 16進定数への区切り強制はかえって読みにくいケースがある
+    "unicorn/numeric-separators-style": "off",
+    // oxfmt が 16 進を小文字に正規化するためこのルールと競合する
+    "unicorn/number-literal-case": "off"
+  },
+  "overrides": [
+    {
+      // テストファイルはマジックナンバーを許可
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "no-magic-numbers": "off"
+      }
+    }
+  ],
+  "ignorePatterns": ["src/mbt.d.ts"]
+}

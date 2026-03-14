@@ -9,9 +9,13 @@
   "endOfLine": "lf",
   "insertFinalNewline": true,
   "quoteProps": "as-needed",
+  // 短いオブジェクトリテラルは1行に折り畳む
   "objectWrap": "collapse",
+  // import を自動ソート（sort-imports lint ルールは off で二重管理しない）
   "sortImports": {},
+  // Tailwind クラスを自動ソート
   "sortTailwindcss": {},
+  // package.json のキーを自動ソート
   "sortPackageJson": true,
   "ignorePatterns": []
 }
