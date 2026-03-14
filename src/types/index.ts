@@ -2,14 +2,14 @@ export type Individual = string;
 
 export type SelectionMethod = "elite" | "roulette";
 
-export interface HistoryEntry {
+export type HistoryEntry = {
   generation: number;
   best: number;
   avg: number;
   diversity: number;
 }
 
-export interface SimState {
+export type SimState = {
   target: string;
   population: Individual[];
   generation: number;

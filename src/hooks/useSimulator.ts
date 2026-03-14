@@ -5,7 +5,7 @@ import type { SelectionMethod, SimState } from "../types";
 
 const DEFAULT_TARGET = "HELLO WORLD";
 
-export interface SimulatorActions {
+export type SimulatorActions = {
   start: () => void;
   pause: () => void;
   stepOnce: () => void;
