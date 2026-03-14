@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$file\" == *.ts || \"$file\" == *.tsx || \"$file\" == *.vue ]]; then cd /Users/tito/repos/word-ga && bun run lint 2>&1 | tail -30; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
