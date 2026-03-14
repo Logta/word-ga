@@ -128,6 +128,22 @@ describe("setSpeed", () => {
   });
 });
 
+describe("setSelectionMethod", () => {
+  it("selectionMethod が更新される", async () => {
+    const { result } = renderHook(() => useSimulator());
+    result.value[1].setSelectionMethod("roulette");
+    await nextTick();
+    expect(result.value[0].selectionMethod).toBe("roulette");
+  });
+
+  it("rank に変更できる", async () => {
+    const { result } = renderHook(() => useSimulator());
+    result.value[1].setSelectionMethod("rank");
+    await nextTick();
+    expect(result.value[0].selectionMethod).toBe("rank");
+  });
+});
+
 describe("reset", () => {
   it("stepOnce 後に reset すると generation=0", async () => {
     const { result } = renderHook(() => useSimulator());

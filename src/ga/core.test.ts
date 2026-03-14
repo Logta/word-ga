@@ -56,6 +56,11 @@ describe("encode / decode", () => {
     expect(charToBin(" ")).toBe("11010");
   });
 
+  it("charToBin で未知の文字は '00000' (A) にフォールバック", () => {
+    // index === -1 ガードを確認。変異 (除去) で -1.toString(2) になる
+    expect(charToBin("@")).toBe("00000");
+  });
+
   it("binToChar('11001') === 'Z'", () => {
     expect(binToChar("11001")).toBe("Z");
   });
@@ -106,6 +111,10 @@ describe("sanitize", () => {
 describe("calcDiversity", () => {
   it("空配列のとき 0 を返す", () => {
     expect(calcDiversity([])).toBe(0);
+  });
+
+  it("個体が空文字列のとき 0 を返す（L=0 ガード）", () => {
+    expect(calcDiversity(["", "", ""])).toBe(0);
   });
 
   it("個体数 1 のとき 0 を返す", () => {
@@ -192,6 +201,14 @@ describe("initState", () => {
   it("prevSpeed が引き継がれる", () => {
     expect(initState("HELLO", 150).speed).toBe(150);
   });
+
+  it("デフォルト selectionMethod は elite", () => {
+    expect(initState("HELLO").selectionMethod).toBe("elite");
+  });
+
+  it("prevSelectionMethod が引き継がれる", () => {
+    expect(initState("HELLO", 300, "roulette").selectionMethod).toBe("roulette");
+  });
 });
 
 // ─── stepState ──────────────────────────────────────────────
@@ -243,6 +260,19 @@ describe("stepState", () => {
     const state = { ...initState("HELLO"), isRunning: true };
     const next = stepState(state);
     expect(next.isRunning).toBe(true);
+  });
+
+  it("history の best は全個体中の最大適応度（Math.max確認）", () => {
+    // wasmEvolve が [高, 低, 中] を返す。best = max(0.9, 0.2, 0.3) = 0.9
+    // 変異 Math.max → Math.min だと 0.2 になり検出できる
+    const state = initState("HI");
+    vi.mocked(wasmBridge.wasmEvolve).mockReturnValueOnce(["A", "B", "C"]);
+    vi.mocked(wasmBridge.wasmCalcFitness)
+      .mockReturnValueOnce(0.2)
+      .mockReturnValueOnce(0.9)
+      .mockReturnValueOnce(0.3);
+    const next = stepState({ ...state, population: ["A", "B", "C"] });
+    expect(next.history[1].best).toBeCloseTo(0.9);
   });
 
   it("best=1.0 で solved=true かつ isRunning=false になる", () => {
