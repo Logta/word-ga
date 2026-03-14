@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "file=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$file\" == *.ts || \"$file\" == *.tsx || \"$file\" == *.vue ]]; then cd /Users/tito/repos/word-ga && bun run lint 2>&1 | tail -30; fi"
+            "command": "file=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; ROOT=/Users/tito/repos/word-ga; if [[ \"$file\" == *.mbt ]]; then echo '=== moon fmt --check ===' && (cd \"$ROOT/moonbit\" && moon fmt --check 2>&1) && echo '=== moon build ===' && (cd \"$ROOT/moonbit\" && moon build --target wasm-gc --release 2>&1) && echo '=== moon test ===' && (cd \"$ROOT/moonbit\" && moon test --target wasm-gc 2>&1); elif [[ \"$file\" == *.ts || \"$file\" == *.tsx ]]; then echo '=== fmt:check ===' && (cd \"$ROOT\" && bun run fmt:check 2>&1 | tail -10) && echo '=== lint ===' && (cd \"$ROOT\" && bun run lint 2>&1 | tail -10) && echo '=== tsc ===' && (cd \"$ROOT\" && bunx tsc -b --noEmit 2>&1 | tail -15) && echo '=== test ===' && (cd \"$ROOT\" && bun run test -- --run 2>&1 | tail -15); fi"
           }
         ]
       }
