@@ -1,12 +1,12 @@
 import { defineComponent, type PropType } from "vue";
 
+import { PERCENT } from "../ga/core";
 import type { Individual } from "../types";
 import GeneDisplay from "./GeneDisplay";
 
 const ELITE_DISPLAY_COUNT = 3;
 const FIT_HIGH = 0.8;
 const FIT_MID = 0.5;
-const PERCENT = 100;
 
 function fitBarColor(fit: number, isElite: boolean): string {
   if (isElite) {

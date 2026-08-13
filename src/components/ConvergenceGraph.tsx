@@ -12,12 +12,12 @@ import {
 import { defineComponent, computed, type PropType } from "vue";
 import { Line } from "vue-chartjs";
 
+import { PERCENT } from "../ga/core";
 import type { HistoryEntry } from "../types";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const MAX_DISPLAY = 150;
-const PERCENT = 100;
 const DASH_PATTERN = [5, 5]; // eslint-disable-line no-magic-numbers
 
 const chartOptions: ChartOptions<"line"> = {
