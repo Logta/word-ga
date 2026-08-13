@@ -2,18 +2,23 @@
 
 ## コマンド
 
-```bash
-bun run dev          # 開発サーバー
-bun run build        # ビルド（MoonBit → wasm-gc → Vite）
-bun run test         # TypeScript テスト（vitest）
-bun run lint         # oxlint
-bun run fmt          # oxfmt フォーマット
+`mise.toml` がツールバージョン（bun等）とタスクの単一情報源。初回は `mise run moon:setup` でMoonBitツールチェーンを導入する。
 
-# MoonBit
-cd moonbit && moon build --target wasm-gc --release
-cd moonbit && moon test --target wasm-gc
-cd moonbit && moon coverage clean && moon test --enable-coverage && moon coverage report -f summary
+```bash
+mise run dev          # 開発サーバー
+mise run build        # ビルド（moon:build → tsc → vite build）
+mise run test         # TypeScript テスト（vitest）
+mise run lint         # oxlint
+mise run fmt          # oxfmt フォーマット
+
+mise run moon:setup    # MoonBitツールチェーン導入（未導入時のみ）
+mise run moon:build    # moon build --target wasm-gc --release
+mise run moon:test     # moon test --target wasm-gc
+mise run moon:coverage # カバレッジレポート（summary）
 ```
+
+`bun run <script>` / `cd moonbit && moon ...` も従来通り直接利用可能（`package.json` scripts はmiseタスクがラップしているだけで置き換えていない）。
+
 
 ## ワークフロー
 
@@ -35,7 +40,7 @@ cd moonbit && moon coverage clean && moon test --enable-coverage && moon coverag
 005 Tailwind v4 / 006 recharts / 007 エリート選択 / 008 パイプ区切りWasm通信 /
 009 Bun移行 / 010 PCG乱数 / 011 GitHub Pages / 012 CIワークフロー /
 013 Vue+TSX移行 / 014 差し替え可能な選択戦略 / 015 選択戦略パラメータ文字列化 /
-016 wasm純粋関数・状態管理TS側
+016 wasm純粋関数・状態管理TS側 / 017 mise中心のツール管理
 
 ## コンパクション時に保持すること
 
