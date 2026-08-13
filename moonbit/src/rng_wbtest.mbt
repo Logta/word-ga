@@ -1,4 +1,4 @@
-// Whitebox tests for rng.mbt (PCG-64)
+// Whitebox tests for rng.mbt (PCG XSH-RR 64/32)
 
 ///|
 test "init_rng: 同じシードは同じ乱数列を生成する" {
@@ -19,6 +19,26 @@ test "init_rng: 異なるシードは異なる最初の値を生成する" {
   init_rng(2)
   let b = pcg_next32()
   assert_eq(a != b, true)
+}
+
+// 参照実装（BigIntによる独立実装の PCG XSH-RR 64/32）で計算した期待値。
+// 算術シフトの符号拡張が混入すると一致しなくなる（ADR-020 のリグレッション検出）
+
+///|
+test "pcg_next32: 参照実装(pcg32)と一致する (seed=1)" {
+  init_rng(1)
+  assert_eq(pcg_next32(), 1412771199)
+  assert_eq(pcg_next32(), 1791099446)
+  assert_eq(pcg_next32(), 124312908)
+}
+
+///|
+test "pcg_next32: 参照実装(pcg32)と一致する (seed=42)" {
+  init_rng(42)
+  // unsigned 3270867926 の signed 32bit 表現
+  assert_eq(pcg_next32(), -1024099370)
+  assert_eq(pcg_next32(), 1795671209)
+  assert_eq(pcg_next32(), 1924641435)
 }
 
 ///|
@@ -65,14 +85,5 @@ test "rand_int: 値は[0, limit)の範囲内 (200回)" {
     let v = rand_int(limit)
     assert_eq(v >= 0, true)
     assert_eq(v < limit, true)
-  }
-}
-
-///|
-test "pcg_next32: 出力は非負" {
-  init_rng(1)
-  for _ in 0..<500 {
-    let v = pcg_next32() & 0x7FFFFFFF
-    assert_eq(v >= 0, true)
   }
 }

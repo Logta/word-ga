@@ -24,3 +24,15 @@ test "calc_fitness: 完全不一致で0.0" {
 test "calc_fitness: 2/4一致 = 0.5" {
   assert_eq(calc_fitness("1100", "1010"), 0.5)
 }
+
+// ─── 入力契約 (ADR-019) ──────────────────────────────────────────────────────
+
+///|
+test "panic calc_fitness: 空ターゲットはabort" {
+  let _ = calc_fitness("", "")
+}
+
+///|
+test "panic calc_fitness: 個体長がターゲットと不一致はabort" {
+  let _ = calc_fitness("10", "1010")
+}
