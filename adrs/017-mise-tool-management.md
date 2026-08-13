@@ -18,7 +18,7 @@
 - `[tools]` で bun のバージョンを固定
 - `[tasks]` で `bun run dev` 等の既存 `package.json` scripts をラップし、`mise run dev` のような統一入口を用意
 - MoonBit は mise 標準の tool backend（core/asdf/ubi等）に対応するものがない（`moon` は単純な単一バイナリではなく、公式インストーラがバージョンごとの `core` ライブラリ取得・bundle処理まで行うため、汎用バックエンドでは代替できない）。コミュニティ製 asdf プラグイン（`cometkim/asdf-moonbit`）も存在するが更新が1年以上止まっており信頼できない
-- そのため MoonBit は `[env] MOONBIT_VERSION` で希望バージョンを宣言し、`mise run moon:setup` タスクが未導入時に公式インストーラを呼び出す形で「バージョンの単一情報源」だけ mise に寄せる
+- MoonBit公式CDNの調査により、日付付きビルド（例: `0.1.20260807`）は公開から1週間程度でCDNから403となり取得不能になることが判明した（`https://cli.moonbitlang.com/binaries/<version>/...` で実測）。特定バージョンへのピン留めは実質不可能で、`latest` を追いかける以外の選択肢がない。そのため MoonBit は `mise run moon:setup` タスクが未導入時に公式インストーラを（バージョン指定なし = latest で）呼び出すだけにとどめる
 
 **案B: mise を導入しない（現状維持）**
 - 個別管理を継続。再現性の問題は残る
@@ -28,7 +28,7 @@
 
 ## Decision
 
-**案Aを採用する。** `mise.toml` を新設し、bun のバージョンを `[tools]` で固定、既存 `bun run <script>` 群を `[tasks]` でラップする。MoonBit は汎用バックエンドで管理できないため、バージョン文字列を `[env] MOONBIT_VERSION` で宣言し、`mise run moon:setup` で公式インストーラを呼ぶ運用にとどめる。
+**案Aを採用する。** `mise.toml` を新設し、bun のバージョンを `[tools]` で固定、既存 `bun run <script>` 群を `[tasks]` でラップする。MoonBit は汎用バックエンドで管理できず、かつ公式CDNの保持期間の都合でバージョンピン留め自体ができないため、`mise run moon:setup` で公式インストーラ（latest）を呼ぶ運用にとどめる。
 
 ## Consequences
 
@@ -36,8 +36,8 @@
 
 | 責務 | 管理方法 |
 |---|---|
-| bun バージョン | `mise.toml` `[tools]`（mise core backend） |
-| MoonBit バージョン宣言 | `mise.toml` `[env] MOONBIT_VERSION`（実インストールは公式インストーラ、`mise run moon:setup`) |
+| bun バージョン | `mise.toml` `[tools]`（mise core backend、固定可能） |
+| MoonBit | `mise run moon:setup`（公式インストーラ、常に latest。ピン留め不可） |
 | 日常コマンド | `mise.toml` `[tasks]`（`mise run dev/build/test/lint/fmt` 等） |
 | `package.json` scripts | 従来通り残す（`mise tasks` はこれをラップするのみで置き換えない。`bun run dev` も引き続き使用可能） |
 
@@ -49,5 +49,5 @@
 
 ### 制約・今後の課題
 
-- MoonBit 自体は mise が「バージョンを取得してインストールする」対象にはなっていない（バージョン宣言のみ）。公式が mise/asdf 向けの配布形式を用意すれば移行を検討する
+- MoonBit 自体は mise が「バージョンを取得してインストールする」対象にはなっていない。加えて公式CDNが日付付きビルドを長期保持しないため、バージョンピン留め自体が不可能（`latest` 追従のみ）。CI側もこの制約を前提に unpinned install のままとする（`.github/workflows/ci.yml` / `deploy.yml`）。公式が寿命の長い配布形式（mise/asdf対応や長期保持されるリリースタグ等）を用意すれば移行を検討する
 - CI（`.github/workflows/`）は本ADRの対象外。CI側で mise を使うかは別途検討する

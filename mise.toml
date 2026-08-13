@@ -2,8 +2,10 @@
 bun = "1.2.22"
 
 [env]
-# MoonBitツールチェーン（mise未対応のため公式インストーラで管理。バージョンは `mise run moon:setup` が参照する）
-MOONBIT_VERSION = "0.1.20260807"
+# MoonBitツールチェーン（mise未対応のため公式インストーラで管理）。
+# MoonBit公式CDNは日付付きビルドを長期保持しない（実測: 公開から
+# 6日程度でCDNから403になり消える）ため、特定バージョンへのピン留め
+# はできない。`latest` を追いかける方針とする。
 MOON_HOME = "{{env.HOME}}/.moon"
 _.path = ["{{env.HOME}}/.moon/bin"]
 
@@ -11,7 +13,7 @@ _.path = ["{{env.HOME}}/.moon/bin"]
 description = "MoonBitツールチェーンを公式インストーラで導入（未導入時のみ）"
 run = '''
 if ! command -v moon >/dev/null 2>&1; then
-  curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- "$MOONBIT_VERSION"
+  curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
 fi
 moon version
 '''
