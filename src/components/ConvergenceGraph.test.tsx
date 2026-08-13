@@ -1,27 +1,8 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("chart.js", () => ({
-  Chart: { register: () => {} },
-  CategoryScale: {},
-  LinearScale: {},
-  PointElement: {},
-  LineElement: {},
-  Title: {},
-  Tooltip: {},
-  Legend: {},
-}));
-
-vi.mock("vue-chartjs", async () => {
-  const { h } = await import("vue");
-  return {
-    Line: {
-      name: "Line",
-      props: ["data", "options"],
-      render: () => h("canvas", { "data-testid": "chart-canvas" }),
-    },
-  };
-});
+vi.mock("chart.js");
+vi.mock("vue-chartjs");
 
 import ConvergenceGraph from "./ConvergenceGraph";
 
