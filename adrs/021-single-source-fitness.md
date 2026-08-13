@@ -1,6 +1,6 @@
 # ADR-021: fitness計算を各層で一度だけ行い、結果を単一ソースとして共有する
 
-**Status**: Proposed
+**Status**: Accepted
 
 ## Context
 

@@ -1,6 +1,6 @@
 # ADR-019: Wasm公開APIの入力契約を明示し、契約違反を即時abortする
 
-**Status**: Proposed
+**Status**: Accepted
 
 ## Context
 

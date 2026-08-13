@@ -1,6 +1,6 @@
 # ADR-020: PCG実装の符号拡張バグを修正し参照アルゴリズムに一致させる
 
-**Status**: Proposed
+**Status**: Accepted
 
 ## Context
 
