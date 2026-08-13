@@ -12,8 +12,8 @@ import {
 import { defineComponent, computed, type PropType } from "vue";
 import { Line } from "vue-chartjs";
 
-import { PERCENT } from "../ga/core";
 import type { HistoryEntry } from "../types";
+import { toPercent } from "../utils/format";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -65,7 +65,7 @@ export default defineComponent({
         datasets: [
           {
             label: "最高適応度",
-            data: recent.map((h) => Number((h.best * PERCENT).toFixed(1))),
+            data: recent.map((h) => Number(toPercent(h.best).toFixed(1))),
             borderColor: "#22C55E",
             borderWidth: 2.5,
             pointRadius: 0,
@@ -73,7 +73,7 @@ export default defineComponent({
           },
           {
             label: "平均適応度",
-            data: recent.map((h) => Number((h.avg * PERCENT).toFixed(1))),
+            data: recent.map((h) => Number(toPercent(h.avg).toFixed(1))),
             borderColor: "#FBBF24",
             borderWidth: 1.5,
             borderDash: DASH_PATTERN,
@@ -82,7 +82,7 @@ export default defineComponent({
           },
           {
             label: "多様性",
-            data: recent.map((h) => Number((h.diversity * PERCENT).toFixed(1))),
+            data: recent.map((h) => Number(toPercent(h.diversity).toFixed(1))),
             borderColor: "#A78BFA",
             borderWidth: 1.5,
             borderDash: DASH_PATTERN,

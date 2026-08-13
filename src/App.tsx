@@ -5,7 +5,7 @@ import ConvergenceGraph from "./components/ConvergenceGraph";
 import Header from "./components/Header";
 import IndividualList from "./components/IndividualList";
 import StatusBar from "./components/StatusBar";
-import { calcFitness, encode, sanitize } from "./ga/core";
+import { sanitize } from "./ga/encoding";
 import { useSimulator } from "./hooks/useSimulator";
 
 export default defineComponent({
@@ -14,11 +14,15 @@ export default defineComponent({
     const [state, actions] = useSimulator();
     const targetInput = ref(state.target);
 
+    // 適応度は SimState に保持済みのものを参照する（wasm 再計算なし、ADR-021）
     const sorted = computed(() =>
       state.population
-        .map((ind) => ({ ind, fit: calcFitness(ind, encode(state.target)) }))
+        .map((ind, i) => ({ ind, fit: state.fits[i] }))
         .toSorted((a, b) => b.fit - a.fit),
     );
+
+    // ベスト個体・ベスト適応度は同一の sorted から取り、表示の出所を一本化する
+    const best = computed(() => sorted.value[0]);
 
     const lastHistory = computed(() => state.history[state.history.length - 1]);
 
@@ -49,9 +53,9 @@ export default defineComponent({
         />
         <StatusBar
           generation={state.generation}
-          bestFit={lastHistory.value.best}
+          bestFit={best.value?.fit ?? 0}
           avgFit={lastHistory.value.avg}
-          bestInd={sorted.value[0]?.ind ?? ""}
+          bestInd={best.value?.ind ?? ""}
           target={state.target}
         />
         {state.solved && (

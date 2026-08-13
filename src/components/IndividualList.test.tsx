@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 // core.ts が wasmBridge を参照するため CI 環境でも解決できるようモックする
 vi.mock("../ga/wasmBridge");
 
-import { encode } from "../ga/core";
+import { encode } from "../ga/encoding";
 import IndividualList from "./IndividualList";
 
 /** n 個の個体を適応度降順で生成 */

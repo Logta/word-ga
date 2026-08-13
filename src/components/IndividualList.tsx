@@ -1,7 +1,7 @@
 import { defineComponent, type PropType } from "vue";
 
-import { PERCENT } from "../ga/core";
 import type { Individual } from "../types";
+import { formatPercent, toPercent } from "../utils/format";
 import GeneDisplay from "./GeneDisplay";
 
 const ELITE_DISPLAY_COUNT = 3;
@@ -62,7 +62,7 @@ export default defineComponent({
                 <div class="h-1.5 w-16 shrink-0 rounded-full bg-gray-600 sm:w-24">
                   <div
                     class={`h-1.5 rounded-full transition-all duration-150 ${fitBarColor(fit, isElite)}`}
-                    style={{ width: `${fit * PERCENT}%` }}
+                    style={{ width: `${toPercent(fit)}%` }}
                   />
                 </div>
                 <span
@@ -70,7 +70,7 @@ export default defineComponent({
                     isElite ? "text-yellow-300" : "text-gray-400"
                   }`}
                 >
-                  {(fit * PERCENT).toFixed(0)}%
+                  {formatPercent(fit, 0)}
                 </span>
               </div>
             );

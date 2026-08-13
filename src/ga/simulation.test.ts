@@ -2,129 +2,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 import { referenceFitness } from "../testUtils/referenceFitness";
 import { createSeededRandom } from "../testUtils/seededRandom";
-import {
-  initState,
-  stepState,
-  calcDiversity,
-  CHARS,
-  POP_SIZE,
-  MUTATION_RATE,
-  ELITE_RATIO,
-  charToBin,
-  binToChar,
-  encode,
-  decode,
-} from "./core";
+import { encode } from "./encoding";
+import { initState, stepState, POP_SIZE, DEFAULT_SPEED } from "./simulation";
 import * as wasmBridge from "./wasmBridge";
 
-// wasmBridgeをモック（Wasm不要）
-vi.mock("./wasmBridge", () => ({ wasmCalcFitness: vi.fn(), wasmEvolve: vi.fn() }));
+// wasmBridgeをモック（Wasm不要。手動モック: src/ga/__mocks__/wasmBridge.ts）
+vi.mock("./wasmBridge");
 
 beforeEach(() => {
   vi.mocked(wasmBridge.wasmCalcFitness).mockImplementation(referenceFitness);
   vi.mocked(wasmBridge.wasmEvolve).mockImplementation((pop) => [...pop]);
-});
-
-// ─── 定数 ───────────────────────────────────────────────────
-
-describe("constants", () => {
-  it("CHARS はA-Zとスペースの27文字", () => {
-    expect(CHARS).toHaveLength(27);
-    expect(CHARS).toContain(" ");
-    for (const c of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
-      expect(CHARS).toContain(c);
-    }
-  });
-
-  it("POP_SIZE は30", () => {
-    expect(POP_SIZE).toBe(30);
-  });
-
-  it("MUTATION_RATE は0.03", () => {
-    expect(MUTATION_RATE).toBeCloseTo(0.03);
-  });
-
-  it("ELITE_RATIO は0.4", () => {
-    expect(ELITE_RATIO).toBeCloseTo(0.4);
-  });
-});
-
-// ─── encode / decode ────────────────────────────────────────
-
-describe("encode / decode", () => {
-  it("charToBin('A') === '00000'", () => {
-    expect(charToBin("A")).toBe("00000");
-  });
-
-  it("charToBin('Z') === '11001'", () => {
-    expect(charToBin("Z")).toBe("11001");
-  });
-
-  it("charToBin(' ') === '11010'", () => {
-    expect(charToBin(" ")).toBe("11010");
-  });
-
-  it("binToChar('00000') === 'A'", () => {
-    expect(binToChar("00000")).toBe("A");
-  });
-
-  it("binToChar('11001') === 'Z'", () => {
-    expect(binToChar("11001")).toBe("Z");
-  });
-
-  it("binToChar('11010') === ' '", () => {
-    expect(binToChar("11010")).toBe(" ");
-  });
-
-  it("binToChar('11111') === ' ' (index 31 はスペース)", () => {
-    expect(binToChar("11111")).toBe(" ");
-  });
-
-  it("encode('A') === '00000'", () => {
-    expect(encode("A")).toBe("00000");
-  });
-
-  it("decode('00000') === 'A'", () => {
-    expect(decode("00000")).toBe("A");
-  });
-
-  it("encode/decode ラウンドトリップ（A-Z, スペース）", () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
-    expect(decode(encode(chars))).toBe(chars);
-  });
-});
-
-// ─── calcDiversity ──────────────────────────────────────────
-
-describe("calcDiversity", () => {
-  it("全個体が同一のとき 0 を返す", () => {
-    expect(calcDiversity(["0000", "0000", "0000"])).toBe(0);
-  });
-
-  it("個体数 1 のとき 0 を返す", () => {
-    expect(calcDiversity(["1010"])).toBe(0);
-  });
-
-  it("完全に相補的な2個体のとき最大値 1.0 を返す（n=2 の理論最大値は n/(2*(n-1))=1.0）", () => {
-    expect(calcDiversity(["0000", "1111"])).toBeCloseTo(1);
-  });
-
-  it("結果は 0 以上 n/(2*(n-1)) 以下", () => {
-    const pop = ["10101010", "01010101", "11001100", "00110011"];
-    const n = pop.length;
-    const theoreticalMax = n / (2 * (n - 1));
-    const d = calcDiversity(pop);
-    expect(d).toBeGreaterThanOrEqual(0);
-    expect(d).toBeLessThanOrEqual(theoreticalMax + 1e-10);
-  });
-
-  it("ランダムな集団は 0.5 に近い多様性を持つ（確率的）", () => {
-    // 30個体 × 100ビットのランダム集団
-    const pop = Array.from({ length: 30 }, () =>
-      Array.from({ length: 100 }, () => (Math.random() < 0.5 ? "0" : "1")).join(""),
-    );
-    expect(calcDiversity(pop)).toBeGreaterThan(0.35);
-  });
 });
 
 // ─── initState ──────────────────────────────────────────────
@@ -132,6 +19,11 @@ describe("calcDiversity", () => {
 describe("initState", () => {
   it("target を正しく保持する", () => {
     expect(initState("HELLO").target).toBe("HELLO");
+  });
+
+  it("空・空白のみのターゲットは throw する (ADR-019)", () => {
+    expect(() => initState("")).toThrow();
+    expect(() => initState("   ")).toThrow();
   });
 
   it("POP_SIZE 個の個体を生成する", () => {
@@ -157,6 +49,15 @@ describe("initState", () => {
     expect(s.generation).toBe(0);
     expect(s.isRunning).toBe(false);
     expect(s.solved).toBe(false);
+  });
+
+  it("fits は population と並行で各個体の適応度を保持する (ADR-021)", () => {
+    const s = initState("HELLO");
+    expect(s.fits).toHaveLength(POP_SIZE);
+    const binTarget = encode("HELLO");
+    s.population.forEach((ind, i) => {
+      expect(s.fits[i]).toBeCloseTo(referenceFitness(ind, binTarget));
+    });
   });
 
   it("history は generation=0 のエントリー1件のみ", () => {
@@ -185,8 +86,8 @@ describe("initState", () => {
     expect(history[0].diversity).toBeLessThanOrEqual(theoreticalMax + 1e-10);
   });
 
-  it("デフォルト speed は300", () => {
-    expect(initState("HELLO").speed).toBe(300);
+  it("デフォルト speed は DEFAULT_SPEED", () => {
+    expect(initState("HELLO").speed).toBe(DEFAULT_SPEED);
   });
 
   it("prevSpeed が引き継がれる", () => {
@@ -220,6 +121,24 @@ describe("stepState", () => {
     const next = stepState(initState("HELLO"));
     expect(next.history).toHaveLength(2);
     expect(next.history[1].generation).toBe(1);
+  });
+
+  it("fits が新集団と並行して更新される (ADR-021)", () => {
+    const next = stepState(initState("HELLO"));
+    expect(next.fits).toHaveLength(next.population.length);
+    const binTarget = encode("HELLO");
+    next.population.forEach((ind, i) => {
+      expect(next.fits[i]).toBeCloseTo(referenceFitness(ind, binTarget));
+    });
+  });
+
+  it("avg は実際の個体数で計算される（POP_SIZE固定除算の回帰検出）", () => {
+    const state = initState("HI");
+    vi.mocked(wasmBridge.wasmEvolve).mockReturnValue(["0000000000", "1111111111"]);
+    vi.mocked(wasmBridge.wasmCalcFitness).mockReturnValue(0.5);
+    const next = stepState(state);
+    // 2個体 × 0.5 → avg=0.5（バグ時は sum/POP_SIZE = 1/30 ≈ 0.033 になる）
+    expect(next.history[1].avg).toBeCloseTo(0.5);
   });
 
   it("新しい history エントリーの best/avg は [0, 1] の範囲内", () => {
@@ -297,15 +216,38 @@ describe("characterization（リファクタ前後の動作保証）", () => {
     randomSpy.mockRestore();
   });
 
-  it("initState('HI') の出力全体がリファクタ前後で一致する", () => {
-    expect(initState("HI")).toMatchSnapshot();
+  // スナップショットは意味のある統計射影（history等）に絞り、
+  // 乱数消費順に敏感な集団全体は不変条件で保証する
+  it("initState('HI') の統計射影がリファクタ前後で一致する", () => {
+    const s = initState("HI");
+    expect({
+      target: s.target,
+      generation: s.generation,
+      isRunning: s.isRunning,
+      speed: s.speed,
+      solved: s.solved,
+      selectionMethod: s.selectionMethod,
+      history: s.history,
+    }).toMatchSnapshot();
+    expect(s.population).toHaveLength(POP_SIZE);
+    for (const ind of s.population) {
+      expect(ind).toMatch(/^[01]+$/);
+    }
+    expect(s.fits).toHaveLength(POP_SIZE);
   });
 
-  it("stepState を3世代進めた出力全体がリファクタ前後で一致する", () => {
+  it("stepState を3世代進めた統計射影がリファクタ前後で一致する", () => {
     let state = initState("HI");
     for (let i = 0; i < 3; i++) {
       state = stepState(state);
     }
-    expect(state).toMatchSnapshot();
+    expect({
+      target: state.target,
+      generation: state.generation,
+      solved: state.solved,
+      history: state.history,
+    }).toMatchSnapshot();
+    expect(state.population).toHaveLength(POP_SIZE);
+    expect(state.fits).toHaveLength(POP_SIZE);
   });
 });

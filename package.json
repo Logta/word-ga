@@ -4,6 +4,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/vue": "^8.1.0",
+    "@types/node": "^26.2.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vitejs/plugin-vue-jsx": "^5.1.6",
     "@vitest/coverage-v8": "^4.1.10",

@@ -15,6 +15,7 @@ import App from "./App";
 const baseState = {
   target: "HELLO WORLD",
   population: [],
+  fits: [],
   generation: 3,
   history: [{ generation: 3, best: 0.8, avg: 0.6, diversity: 0.3 }],
   isRunning: false,

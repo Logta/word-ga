@@ -1,6 +1,6 @@
 import { defineComponent } from "vue";
 
-import { decode } from "../ga/core";
+import { decode } from "../ga/encoding";
 
 export default defineComponent({
   name: "GeneDisplay",
