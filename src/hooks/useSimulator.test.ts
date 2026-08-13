@@ -4,6 +4,7 @@ import { defineComponent, nextTick } from "vue";
 
 import * as wasmBridge from "../ga/wasmBridge";
 import { referenceFitness } from "../testUtils/referenceFitness";
+import { createSeededRandom } from "../testUtils/seededRandom";
 import { useSimulator } from "./useSimulator";
 
 function renderHook<T>(composable: () => T) {
@@ -225,5 +226,29 @@ describe("自動進化", () => {
     vi.advanceTimersByTime(100);
     await nextTick();
     expect(result.value[0].generation).toBeGreaterThan(0);
+  });
+});
+
+// ─── 特性化テスト（リファクタ前後の動作保証） ──────────────────
+
+describe("characterization（リファクタ前後の動作保証）", () => {
+  let randomSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    randomSpy = vi.spyOn(Math, "random").mockImplementation(createSeededRandom(7));
+  });
+
+  afterEach(() => {
+    randomSpy.mockRestore();
+  });
+
+  it("stepOnce を3回実行した後の state 全体がリファクタ前後で一致する", async () => {
+    const { result } = renderHook(() => useSimulator());
+    for (let i = 0; i < 3; i++) {
+      result.value[1].stepOnce();
+      // eslint-disable-next-line no-await-in-loop -- 各世代は前世代のstateに依存するため逐次実行が必須
+      await nextTick();
+    }
+    expect(result.value[0]).toMatchSnapshot();
   });
 });
