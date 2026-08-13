@@ -1,6 +1,6 @@
 # ADR-015: 選択戦略パラメータをIntからStringに変更
 
-**Status**: Accepted
+**Status**: Accepted（未知文字列の無警告エリートフォールバックは ADR-019 で abort に変更）
 
 ## Context
 
