@@ -35,7 +35,7 @@ fn roulette_select(pop : Array[String], target : String) -> String {
       selected = pop[i]
       break
     }
-    i = i + 1
+    i += 1
   }
   selected
 }

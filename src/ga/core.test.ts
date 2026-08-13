@@ -1,5 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+import { referenceFitness } from "../testUtils/referenceFitness";
+import { createSeededRandom } from "../testUtils/seededRandom";
 import {
   initState,
   stepState,
@@ -18,19 +20,8 @@ import * as wasmBridge from "./wasmBridge";
 // wasmBridgeをモック（Wasm不要）
 vi.mock("./wasmBridge", () => ({ wasmCalcFitness: vi.fn(), wasmEvolve: vi.fn() }));
 
-// 参照実装：文字一致率を計算
-function calcFitnessRef(ind: string, target: string): number {
-  let m = 0;
-  for (let i = 0; i < target.length; i++) {
-    if (ind[i] === target[i]) {
-      m++;
-    }
-  }
-  return m / target.length;
-}
-
 beforeEach(() => {
-  vi.mocked(wasmBridge.wasmCalcFitness).mockImplementation(calcFitnessRef);
+  vi.mocked(wasmBridge.wasmCalcFitness).mockImplementation(referenceFitness);
   vi.mocked(wasmBridge.wasmEvolve).mockImplementation((pop) => [...pop]);
 });
 
@@ -290,5 +281,31 @@ describe("stepState", () => {
     }
     expect(state.generation).toBe(5);
     expect(state.history).toHaveLength(6);
+  });
+});
+
+// ─── 特性化テスト（リファクタ前後の動作保証） ──────────────────
+
+describe("characterization（リファクタ前後の動作保証）", () => {
+  let randomSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    randomSpy = vi.spyOn(Math, "random").mockImplementation(createSeededRandom(42));
+  });
+
+  afterEach(() => {
+    randomSpy.mockRestore();
+  });
+
+  it("initState('HI') の出力全体がリファクタ前後で一致する", () => {
+    expect(initState("HI")).toMatchSnapshot();
+  });
+
+  it("stepState を3世代進めた出力全体がリファクタ前後で一致する", () => {
+    let state = initState("HI");
+    for (let i = 0; i < 3; i++) {
+      state = stepState(state);
+    }
+    expect(state).toMatchSnapshot();
   });
 });

@@ -1,0 +1,59 @@
+[tools]
+bun = "1.2.22"
+
+[env]
+# MoonBitツールチェーン（mise未対応のため公式インストーラで管理）。
+# MoonBit公式CDNは日付付きビルドを長期保持しない（実測: 公開から
+# 6日程度でCDNから403になり消える）ため、特定バージョンへのピン留め
+# はできない。`latest` を追いかける方針とする。
+MOON_HOME = "{{env.HOME}}/.moon"
+_.path = ["{{env.HOME}}/.moon/bin"]
+
+[tasks."moon:setup"]
+description = "MoonBitツールチェーンを公式インストーラで導入（未導入時のみ）"
+run = '''
+if ! command -v moon >/dev/null 2>&1; then
+  curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+fi
+moon version
+'''
+
+[tasks."moon:build"]
+description = "MoonBit を wasm-gc へビルド"
+dir = "moonbit"
+run = "moon build --target wasm-gc --release"
+
+[tasks."moon:test"]
+description = "MoonBit テスト"
+dir = "moonbit"
+run = "moon test --target wasm-gc"
+
+[tasks."moon:coverage"]
+description = "MoonBit カバレッジレポート"
+dir = "moonbit"
+run = '''
+moon coverage clean
+moon test --enable-coverage
+moon coverage report -f summary
+'''
+
+[tasks.dev]
+description = "開発サーバーを起動"
+run = "bun run dev"
+
+[tasks.build]
+description = "ビルド（MoonBit → wasm-gc → Vite）"
+depends = ["moon:build"]
+run = "bun run build"
+
+[tasks.test]
+description = "TypeScript テスト（vitest）"
+run = "bun run test"
+
+[tasks.lint]
+description = "oxlint による静的解析"
+run = "bun run lint"
+
+[tasks.fmt]
+description = "oxfmt によるフォーマット"
+run = "bun run fmt"

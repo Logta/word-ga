@@ -15,3 +15,5 @@ coveralls.json
 cobertura.xml
 
 *.tsbuildinfo
+
+mise.local.toml

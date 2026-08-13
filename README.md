@@ -69,25 +69,29 @@ MoonBit/wasmは `evolve` などの **純粋関数** のみをエクスポート�
 
 ### 前提条件
 
-- [MoonBit](https://www.moonbitlang.com/) (`moon` コマンド)
-- [Bun](https://bun.sh/)
+- [mise](https://mise.jdx.dev/) — ツールバージョンとタスクの管理に使用（`mise.toml` 参照、ADR-017）
+- [MoonBit](https://www.moonbitlang.com/) (`moon` コマンド) — mise管理対象外。`mise run moon:setup` で導入可能
+
+Bun は `mise.toml` の `[tools]` でバージョン固定されているため、mise経由なら別途インストール不要です。
 
 ### セットアップ
 
 ```bash
+mise install          # bunなどツールを導入
+mise run moon:setup   # MoonBitツールチェーンを導入（未導入時のみ）
 bun install
 ```
 
 ### 開発サーバー起動
 
 ```bash
-bun run dev
+mise run dev
 ```
 
 ### ビルド
 
 ```bash
-bun run build
+mise run build
 ```
 
 MoonBit のコンパイル（`moonbit/` 以下）と TypeScript のビルドが順に実行されます。
@@ -96,25 +100,27 @@ MoonBit のコンパイル（`moonbit/` 以下）と TypeScript のビルドが�
 
 ```bash
 # TypeScript テスト（vitest）
-bun run test
+mise run test
 
 # MoonBit テスト
-cd moonbit && moon test --target wasm-gc
+mise run moon:test
 
 # MoonBit カバレッジ
-cd moonbit && moon coverage clean && moon test --enable-coverage && moon coverage report -f summary
+mise run moon:coverage
 ```
 
 ### Lint / Format
 
 ```bash
-bun run lint       # oxlint
-bun run fmt        # oxfmt（上書きフォーマット）
+mise run lint      # oxlint
+mise run fmt       # oxfmt（上書きフォーマット）
 bun run fmt:check  # oxfmt（チェックのみ）
 
 cd moonbit && moon fmt         # MoonBit フォーマット
 cd moonbit && moon fmt --check # MoonBit フォーマットチェック
 ```
+
+上記はすべて `bun run <script>` / `cd moonbit && moon ...` でも直接実行できます（`mise run` はラップしているだけです）。
 
 ## ADR
 

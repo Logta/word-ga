@@ -1,5 +1,6 @@
+pkgtype(kind: "executable")
+
 options(
-  is_main: true,
   link: {
     "wasm-gc": {
       "exports": [ "calc_fitness", "evolve", "init_rng" ],

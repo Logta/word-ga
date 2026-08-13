@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # MoonBitはCDNの保持期間の都合でバージョンピン留めができず、CIは
+  # 常にlatestを追いかける（ADR-017参照）。push/PRが無い期間にmoon側の
+  # 破壊的変更（設定ファイル形式の非推奨化など）が入ると、次にPRが
+  # 立った時に初めて気づくことになる。毎週mainに対して実行し早期検知する。
+  schedule:
+    - cron: "0 0 * * 1"
 
 jobs:
   test-moonbit:

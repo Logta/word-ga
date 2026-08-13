@@ -15,9 +15,9 @@ export default defineComponent({
     const targetInput = ref(state.target);
 
     const sorted = computed(() =>
-      [...state.population]
+      state.population
         .map((ind) => ({ ind, fit: calcFitness(ind, encode(state.target)) }))
-        .sort((a, b) => b.fit - a.fit),
+        .toSorted((a, b) => b.fit - a.fit),
     );
 
     const lastHistory = computed(() => state.history[state.history.length - 1]);

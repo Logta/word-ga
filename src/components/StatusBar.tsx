@@ -1,8 +1,7 @@
 import { defineComponent } from "vue";
 
+import { PERCENT } from "../ga/core";
 import GeneDisplay from "./GeneDisplay";
-
-const PERCENT = 100;
 
 export default defineComponent({
   name: "StatusBar",

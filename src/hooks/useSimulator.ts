@@ -15,6 +15,11 @@ export interface SimulatorActions {
   setSelectionMethod: (selectionMethod: SelectionMethod) => void;
 }
 
+// 1世代分進めて state に反映する（インターバルtickと stepOnce の共通処理）
+function applyStep(state: SimState): void {
+  Object.assign(state, stepState({ ...state }));
+}
+
 export function useSimulator(): [SimState, SimulatorActions] {
   const state = reactive<SimState>(initState(DEFAULT_TARGET));
   let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -32,9 +37,7 @@ export function useSimulator(): [SimState, SimulatorActions] {
     ([isRunning, speed]) => {
       clearTimer();
       if (isRunning) {
-        intervalId = setInterval(() => {
-          Object.assign(state, stepState({ ...state } as SimState));
-        }, speed);
+        intervalId = setInterval(() => applyStep(state), speed);
       }
     },
     { flush: "sync" },
@@ -48,9 +51,7 @@ export function useSimulator(): [SimState, SimulatorActions] {
   const pause = () => {
     state.isRunning = false;
   };
-  const stepOnce = () => {
-    Object.assign(state, stepState({ ...state } as SimState));
-  };
+  const stepOnce = () => applyStep(state);
   const reset = () => {
     Object.assign(state, initState(state.target, state.speed, state.selectionMethod));
   };
@@ -69,7 +70,7 @@ export function useSimulator(): [SimState, SimulatorActions] {
   };
 
   return [
-    state as unknown as SimState,
+    state as SimState,
     { start, pause, stepOnce, reset, setSpeed, applyTarget, setSelectionMethod },
   ];
 }

@@ -1,4 +1,4 @@
-import type { Individual, SelectionMethod, SimState } from "../types";
+import type { HistoryEntry, Individual, SelectionMethod, SimState } from "../types";
 import { wasmCalcFitness, wasmEvolve } from "./wasmBridge";
 
 export const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "; // A=00000(0), Z=11001(25), space=11010(26)
@@ -8,6 +8,7 @@ export const POP_SIZE = 30;
 export const MUTATION_RATE = 0.03;
 export const ELITE_RATIO = 0.4;
 export const DEFAULT_SPEED = 300;
+export const PERCENT = 100;
 
 export const calcFitness = wasmCalcFitness;
 
@@ -79,6 +80,25 @@ function randomIndividual(targetLen: number): Individual {
   return Array.from({ length: targetLen * BITS_PER_CHAR }, randomBit).join("");
 }
 
+interface Summary {
+  best: number;
+  avg: number;
+  historyEntry: HistoryEntry;
+}
+
+// 集団のfitsを計算し、best/avg/historyエントリーをまとめて返す
+// (initState/stepState で重複していた計算を共通化)
+function summarize(population: Individual[], binTarget: string, generation: number): Summary {
+  const fits = population.map((ind) => wasmCalcFitness(ind, binTarget));
+  const best = Math.max(...fits);
+  const avg = fits.reduce((a, b) => a + b, 0) / POP_SIZE;
+  return {
+    best,
+    avg,
+    historyEntry: { generation, best, avg, diversity: calcDiversity(population) },
+  };
+}
+
 // eslint-disable-next-line no-magic-numbers
 export function initState(
   target: string,
@@ -87,14 +107,12 @@ export function initState(
 ): SimState {
   const binTarget = encode(target);
   const population = Array.from({ length: POP_SIZE }, () => randomIndividual(target.length));
-  const fits = population.map((ind) => wasmCalcFitness(ind, binTarget));
-  const best = Math.max(...fits);
-  const avg = fits.reduce((a, b) => a + b, 0) / POP_SIZE;
+  const { historyEntry } = summarize(population, binTarget, 0);
   return {
     target,
     population,
     generation: 0,
-    history: [{ generation: 0, best, avg, diversity: calcDiversity(population) }],
+    history: [historyEntry],
     isRunning: false,
     speed: prevSpeed,
     solved: false,
@@ -108,16 +126,14 @@ export function stepState(prev: SimState): SimState {
   }
   const binTarget = encode(prev.target);
   const newPop = wasmEvolve(prev.population, binTarget, prev.selectionMethod);
-  const fits = newPop.map((ind) => wasmCalcFitness(ind, binTarget));
-  const best = Math.max(...fits);
-  const avg = fits.reduce((a, b) => a + b, 0) / POP_SIZE;
   const generation = prev.generation + 1;
+  const { best, historyEntry } = summarize(newPop, binTarget, generation);
   const solved = best >= 1;
   return {
     ...prev,
     population: newPop,
     generation,
-    history: [...prev.history, { generation, best, avg, diversity: calcDiversity(newPop) }],
+    history: [...prev.history, historyEntry],
     isRunning: solved ? false : prev.isRunning,
     solved,
   };

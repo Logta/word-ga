@@ -1,27 +1,8 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("chart.js", () => ({
-  Chart: { register: () => {} },
-  CategoryScale: {},
-  LinearScale: {},
-  PointElement: {},
-  LineElement: {},
-  Title: {},
-  Tooltip: {},
-  Legend: {},
-}));
-
-vi.mock("vue-chartjs", async () => {
-  const { h } = await import("vue");
-  return {
-    Line: {
-      name: "Line",
-      props: ["data", "options"],
-      render: () => h("div", { "data-testid": "chart" }),
-    },
-  };
-});
+vi.mock("chart.js");
+vi.mock("vue-chartjs");
 
 vi.mock("./ga/wasmBridge", () => ({
   wasmCalcFitness: vi.fn().mockReturnValue(0),

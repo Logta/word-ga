@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
 
 // core.ts が wasmBridge を参照するため CI 環境でも解決できるようモックする
-vi.mock("../ga/wasmBridge", () => ({ wasmCalcFitness: vi.fn(), wasmEvolve: vi.fn() }));
+vi.mock("../ga/wasmBridge");
 
 import { encode } from "../ga/core";
 import IndividualList from "./IndividualList";
