@@ -1,7 +1,9 @@
 import { mount } from "@vue/test-utils";
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { defineComponent, nextTick } from "vue";
 
+import * as wasmBridge from "../ga/wasmBridge";
+import { referenceFitness } from "../testUtils/referenceFitness";
 import { useSimulator } from "./useSimulator";
 
 function renderHook<T>(composable: () => T) {
@@ -22,18 +24,12 @@ function renderHook<T>(composable: () => T) {
   };
 }
 
-vi.mock("../ga/wasmBridge", () => ({
-  wasmCalcFitness: vi.fn((ind: string, target: string) => {
-    let m = 0;
-    for (let i = 0; i < target.length; i++) {
-      if (ind[i] === target[i]) {
-        m++;
-      }
-    }
-    return m / target.length;
-  }),
-  wasmEvolve: vi.fn((pop: string[]) => [...pop]),
-}));
+vi.mock("../ga/wasmBridge");
+
+beforeEach(() => {
+  vi.mocked(wasmBridge.wasmCalcFitness).mockImplementation(referenceFitness);
+  vi.mocked(wasmBridge.wasmEvolve).mockImplementation((pop) => [...pop]);
+});
 
 afterEach(() => {
   vi.useRealTimers();

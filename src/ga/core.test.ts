@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+import { referenceFitness } from "../testUtils/referenceFitness";
 import {
   initState,
   stepState,
@@ -18,19 +19,8 @@ import * as wasmBridge from "./wasmBridge";
 // wasmBridgeをモック（Wasm不要）
 vi.mock("./wasmBridge", () => ({ wasmCalcFitness: vi.fn(), wasmEvolve: vi.fn() }));
 
-// 参照実装：文字一致率を計算
-function calcFitnessRef(ind: string, target: string): number {
-  let m = 0;
-  for (let i = 0; i < target.length; i++) {
-    if (ind[i] === target[i]) {
-      m++;
-    }
-  }
-  return m / target.length;
-}
-
 beforeEach(() => {
-  vi.mocked(wasmBridge.wasmCalcFitness).mockImplementation(calcFitnessRef);
+  vi.mocked(wasmBridge.wasmCalcFitness).mockImplementation(referenceFitness);
   vi.mocked(wasmBridge.wasmEvolve).mockImplementation((pop) => [...pop]);
 });
 
