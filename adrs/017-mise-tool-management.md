@@ -50,4 +50,5 @@
 ### 制約・今後の課題
 
 - MoonBit 自体は mise が「バージョンを取得してインストールする」対象にはなっていない。加えて公式CDNが日付付きビルドを長期保持しないため、バージョンピン留め自体が不可能（`latest` 追従のみ）。CI側もこの制約を前提に unpinned install のままとする（`.github/workflows/ci.yml` / `deploy.yml`）。公式が寿命の長い配布形式（mise/asdf対応や長期保持されるリリースタグ等）を用意すれば移行を検討する
+- **latest追従によるドリフトの検知**: `latest` を追いかける以上、moon側の破壊的変更（設定ファイル形式の非推奨化等）がpush/PRの無い期間に入ると、次に誰かがPRを立てた時に初めて気づく形になる（2026-08のPRで実際に発生：`moon.mod.json`/`is_main`が非推奨化されCIが落ちた。3月の最終pushからの約5ヶ月の空白期間にドリフトしていた）。`.github/workflows/ci.yml` に週次の `schedule` トリガーを追加し、コード変更が無くてもmainに対して定期的にCIを回すことで早期検知する
 - CI（`.github/workflows/`）は本ADRの対象外。CI側で mise を使うかは別途検討する
