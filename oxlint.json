@@ -8,7 +8,6 @@
   },
   "rules": {
     "no-magic-numbers": ["error", { "ignore": [0, 1, -1] }],
-    "no-magic-numbers-in-enums": "off",
     "sort-keys": "off",
     "id-length": "off",
     "no-ternary": "off",
@@ -19,7 +18,9 @@
     "max-statements": "off",
     "init-declarations": "off",
     "unicorn/numeric-separators-style": "off",
-    "unicorn/number-literal-case": "off"
+    "unicorn/number-literal-case": "off",
+    "one-var": "off",
+    "unicorn/prefer-export-from": "off"
   },
   "overrides": [
     {

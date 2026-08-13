@@ -5,21 +5,21 @@ import type { SelectionMethod } from "../types";
 type GaWasmExports = Awaited<ReturnType<typeof init>>["exports"];
 
 const SEP = "|";
-let _exports: GaWasmExports | undefined;
+let wasmExports: GaWasmExports | undefined;
 
 export async function initWasm(): Promise<void> {
   const { init } = await import("mbt:ga-core/src");
   const { exports } = await init();
-  _exports = exports;
+  wasmExports = exports;
   // eslint-disable-next-line no-magic-numbers
-  _exports.init_rng((Date.now() ^ Math.floor(Math.random() * 0x7fff_ffff)) | 0);
+  wasmExports.init_rng((Date.now() ^ Math.floor(Math.random() * 0x7fff_ffff)) | 0);
 }
 
 function wasm(): GaWasmExports {
-  if (_exports === undefined) {
+  if (wasmExports === undefined) {
     throw new Error("Wasm not initialized");
   }
-  return _exports;
+  return wasmExports;
 }
 
 export function wasmCalcFitness(ind: string, target: string): number {

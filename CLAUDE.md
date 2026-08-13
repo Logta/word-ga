@@ -40,7 +40,7 @@ mise run moon:coverage # カバレッジレポート（summary）
 005 Tailwind v4 / 006 recharts / 007 エリート選択 / 008 パイプ区切りWasm通信 /
 009 Bun移行 / 010 PCG乱数 / 011 GitHub Pages / 012 CIワークフロー /
 013 Vue+TSX移行 / 014 差し替え可能な選択戦略 / 015 選択戦略パラメータ文字列化 /
-016 wasm純粋関数・状態管理TS側 / 017 mise中心のツール管理
+016 wasm純粋関数・状態管理TS側 / 017 mise中心のツール管理 / 018 依存の一括major更新
 
 ## コンパクション時に保持すること
 
