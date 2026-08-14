@@ -1,6 +1,6 @@
 import { defineComponent } from "vue";
 
-import { PERCENT } from "../ga/core";
+import { formatPercent } from "../utils/format";
 import GeneDisplay from "./GeneDisplay";
 
 export default defineComponent({
@@ -22,13 +22,13 @@ export default defineComponent({
         <div>
           <div class="mb-0.5 text-xs text-gray-500">最高適応度</div>
           <div class="text-xl font-bold text-green-400 tabular-nums">
-            {(props.bestFit * PERCENT).toFixed(1)}%
+            {formatPercent(props.bestFit)}
           </div>
         </div>
         <div>
           <div class="mb-0.5 text-xs text-gray-500">平均適応度</div>
           <div class="text-xl font-bold text-yellow-400 tabular-nums">
-            {(props.avgFit * PERCENT).toFixed(1)}%
+            {formatPercent(props.avgFit)}
           </div>
         </div>
         <div>

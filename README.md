@@ -13,7 +13,7 @@
 
 | 分類 | 技術 |
 |---|---|
-| フロントエンド | Vue 3 (TSX), TypeScript 5.9, Vite 8 |
+| フロントエンド | Vue 3 (TSX), TypeScript 7, Vite 8 |
 | スタイリング | Tailwind CSS v4 |
 | グラフ | chart.js v4 / vue-chartjs v5 |
 | GAコア | MoonBit → wasm-gc (`vite-plugin-moonbit`) |

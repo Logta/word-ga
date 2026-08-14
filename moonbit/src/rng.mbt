@@ -1,4 +1,4 @@
-// 乱数生成 (PCG-64: Permuted Congruential Generator)
+// 乱数生成 (PCG XSH-RR 64/32, いわゆる pcg32)
 // モジュールレベル let mut は使えないため Array の可変性を利用
 
 ///|
@@ -29,14 +29,18 @@ fn logical_shr32(x : Int, n : Int) -> Int {
   }
 }
 
-// PCG-64: 32ビット出力を返す内部関数
+// PCG XSH-RR 64/32: 32ビット出力を返す内部関数
+// 参照: xorshifted = ((old >> 18) ^ old) >> 27（論理シフト）、rot = old >> 59
 
 ///|
 fn pcg_next32() -> Int {
   let old = pcg_state[0]
   pcg_state[0] = old * 6364136223846793005L + pcg_inc[0]
-  // xorshift した上位32ビットを抽出（シフト量は Int で渡す）
-  let xorshifted = (((old >> 18) ^ old) >> 27).to_int()
+  // Int64 の >> は算術シフトのため、>> 18 の結果を下位46ビットにマスクして
+  // 符号拡張を除去する（ADR-020）。>> 27 側の符号拡張はビット37以上にしか
+  // 及ばず、.to_int() が取る下位32ビットには影響しない
+  let shifted = (old >> 18) & 0x3FFFFFFFFFFFL
+  let xorshifted = ((shifted ^ old) >> 27).to_int()
   // 回転量（0〜31）は状態の上位5ビットから取得
   let rot = (old >> 59).to_int() & 31
   // rotr32: 論理右シフト + 左シフトの合成

@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from "vue";
 
-import { sanitize } from "../ga/core";
+import { sanitize } from "../ga/encoding";
 
 export default defineComponent({
   name: "Header",

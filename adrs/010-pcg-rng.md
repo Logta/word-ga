@@ -1,6 +1,6 @@
 # ADR-010: 乱数生成を xorshift64 から PCG に変更
 
-**Status**: Accepted
+**Status**: Accepted（実装の符号拡張バグを ADR-020 で修正）
 
 ## Context
 

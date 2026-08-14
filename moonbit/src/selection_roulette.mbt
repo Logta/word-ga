@@ -1,17 +1,13 @@
 // ルーレット選択戦略
-// 適応度に比例した確率で集団から1体選ぶ
+// 事前計算された適応度 (ADR-021) に比例した確率で集団から1体選ぶ
 // フィットネスシフト（最小適応度を引く）で後半世代の選択圧低下を防ぐ
 
 ///|
-fn roulette_select(pop : Array[String], target : String) -> String {
+fn roulette_select(pop : Array[String], fits : Array[Double]) -> String {
   let n = pop.length()
-  let fitnesses : Array[Double] = pop
-    .iter()
-    .map(fn(ind) { calc_fitness(ind, target) })
-    .collect()
   // 最小適応度を求める
-  let mut min_fit = fitnesses[0]
-  for f in fitnesses {
+  let mut min_fit = fits[0]
+  for f in fits {
     if f < min_fit {
       min_fit = f
     }
@@ -19,7 +15,7 @@ fn roulette_select(pop : Array[String], target : String) -> String {
   // 最小適応度を引いて選択圧を確保
   let cumulative : Array[Double] = Array::new(capacity=n)
   let mut total = 0.0
-  for f in fitnesses {
+  for f in fits {
     total = total + (f - min_fit)
     cumulative.push(total)
   }

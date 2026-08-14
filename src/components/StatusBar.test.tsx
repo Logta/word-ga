@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 // core.ts が wasmBridge を参照するため CI 環境でも解決できるようモックする
 vi.mock("../ga/wasmBridge");
 
-import { encode } from "../ga/core";
+import { encode } from "../ga/encoding";
 import StatusBar from "./StatusBar";
 
 const makeProps = (overrides: Record<string, unknown> = {}) => ({

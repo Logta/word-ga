@@ -1,6 +1,7 @@
 import { reactive, watch, onUnmounted } from "vue";
 
-import { initState, stepState, sanitize } from "../ga/core";
+import { sanitize } from "../ga/encoding";
+import { initState, stepState } from "../ga/simulation";
 import type { SelectionMethod, SimState } from "../types";
 
 const DEFAULT_TARGET = "HELLO WORLD";

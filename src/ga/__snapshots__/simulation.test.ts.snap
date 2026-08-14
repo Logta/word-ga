@@ -1,0 +1,54 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`characterization（リファクタ前後の動作保証） > initState('HI') の統計射影がリファクタ前後で一致する 1`] = `
+{
+  "generation": 0,
+  "history": [
+    {
+      "avg": 0.5333333333333333,
+      "best": 0.9,
+      "diversity": 0.5048275862068966,
+      "generation": 0,
+    },
+  ],
+  "isRunning": false,
+  "selectionMethod": "elite",
+  "solved": false,
+  "speed": 300,
+  "target": "HI",
+}
+`;
+
+exports[`characterization（リファクタ前後の動作保証） > stepState を3世代進めた統計射影がリファクタ前後で一致する 1`] = `
+{
+  "generation": 3,
+  "history": [
+    {
+      "avg": 0.5333333333333333,
+      "best": 0.9,
+      "diversity": 0.5048275862068966,
+      "generation": 0,
+    },
+    {
+      "avg": 0.5333333333333333,
+      "best": 0.9,
+      "diversity": 0.5048275862068966,
+      "generation": 1,
+    },
+    {
+      "avg": 0.5333333333333333,
+      "best": 0.9,
+      "diversity": 0.5048275862068966,
+      "generation": 2,
+    },
+    {
+      "avg": 0.5333333333333333,
+      "best": 0.9,
+      "diversity": 0.5048275862068966,
+      "generation": 3,
+    },
+  ],
+  "solved": false,
+  "target": "HI",
+}
+`;

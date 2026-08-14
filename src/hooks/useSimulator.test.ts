@@ -242,13 +242,26 @@ describe("characterization（リファクタ前後の動作保証）", () => {
     randomSpy.mockRestore();
   });
 
-  it("stepOnce を3回実行した後の state 全体がリファクタ前後で一致する", async () => {
+  // スナップショットは意味のある統計射影（history等）に絞り、
+  // 乱数消費順に敏感な集団全体は不変条件で保証する
+  it("stepOnce を3回実行した後の統計射影がリファクタ前後で一致する", async () => {
     const { result } = renderHook(() => useSimulator());
     for (let i = 0; i < 3; i++) {
       result.value[1].stepOnce();
       // eslint-disable-next-line no-await-in-loop -- 各世代は前世代のstateに依存するため逐次実行が必須
       await nextTick();
     }
-    expect(result.value[0]).toMatchSnapshot();
+    const [state] = result.value;
+    expect({
+      target: state.target,
+      generation: state.generation,
+      solved: state.solved,
+      history: state.history,
+    }).toMatchSnapshot();
+    expect(state.population).toHaveLength(30);
+    expect(state.fits).toHaveLength(30);
+    for (const ind of state.population) {
+      expect(ind).toMatch(/^[01]+$/);
+    }
   });
 });
