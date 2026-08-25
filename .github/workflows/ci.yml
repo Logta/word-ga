@@ -20,7 +20,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install MoonBit
         run: |
@@ -44,7 +44,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install MoonBit
         run: |
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-moonbit, test-ts]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install MoonBit
         run: |
