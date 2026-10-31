@@ -15,8 +15,9 @@ function renderHook<T>(composable: () => T) {
       return () => undefined;
     },
   });
-  mount(Wrapper, { attachTo: document.createElement("div") });
+  const wrapper = mount(Wrapper, { attachTo: document.createElement("div") });
   return {
+    unmount: () => wrapper.unmount(),
     result: {
       get value() {
         return result;
@@ -263,5 +264,42 @@ describe("characterization（リファクタ前後の動作保証）", () => {
     for (const ind of state.population) {
       expect(ind).toMatch(/^[01]+$/);
     }
+  });
+});
+
+// ─── mutation testing で見つかった未検出ケースの補強 ─────────────────
+
+describe("setSelectionMethod", () => {
+  it("選択戦略を切り替え、reset 後も引き継ぐ", async () => {
+    const { result } = renderHook(() => useSimulator());
+    result.value[1].setSelectionMethod("roulette");
+    await nextTick();
+    expect(result.value[0].selectionMethod).toBe("roulette");
+    result.value[1].reset();
+    await nextTick();
+    expect(result.value[0].selectionMethod).toBe("roulette");
+  });
+});
+
+describe("タイマーのライフサイクル", () => {
+  it("start 直後（nextTick を待たず）にインターバルが張られる（watch は flush: sync）", () => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useSimulator());
+    result.value[1].start();
+    vi.advanceTimersByTime(300);
+    expect(result.value[0].generation).toBe(1);
+  });
+
+  it("アンマウント後はインターバルが解除され世代が進まない", async () => {
+    vi.useFakeTimers();
+    const { result, unmount } = renderHook(() => useSimulator());
+    result.value[1].start();
+    await nextTick();
+    vi.advanceTimersByTime(300);
+    const genBeforeUnmount = result.value[0].generation;
+    unmount();
+    vi.advanceTimersByTime(3000);
+    expect(result.value[0].generation).toBe(genBeforeUnmount);
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

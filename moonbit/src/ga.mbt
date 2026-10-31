@@ -16,7 +16,7 @@ fn crossover(p1 : String, p2 : String) -> String {
   let pt = rand_int(p1.length())
   let p1_arr = p1.to_array()
   let p2_arr = p2.to_array()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i in 0..<p1_arr.length() {
     if i < pt {
       buf.write_char(p1_arr[i])
@@ -29,7 +29,7 @@ fn crossover(p1 : String, p2 : String) -> String {
 
 ///|
 fn mutate(ind : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in ind {
     if rand_double() < mutation_rate {
       buf.write_char(random_bit())
@@ -97,7 +97,7 @@ pub fn evolve(
     _ => abort("evolve: unknown selection method: \{sel}")
   }
   let pop_size = pop.length()
-  let next : Array[String] = Array::new(capacity=pop_size)
+  let next : Array[String] = Array(capacity=pop_size)
   for _ in 0..<pop_size {
     let p1 = select(sorted_pop, fits)
     let p2 = select(sorted_pop, fits)

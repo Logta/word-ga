@@ -12,10 +12,6 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
-# mise.toml の MOONBIT_VERSION と揃える（CIのバージョンドリフト防止）。
-env:
-  MOONBIT_VERSION: "0.1.20260807"
-
 jobs:
   build:
     permissions:

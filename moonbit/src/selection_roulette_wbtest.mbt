@@ -68,3 +68,56 @@ test "roulette_select: 選択確率が適応度に比例する（分布検証）
   assert_eq(low_count, 0)
   assert_eq(high_count + mid_count, 300)
 }
+
+///|
+test "roulette_select: 選択確率がシフト後の適応度に比例する（比率の検証）" {
+  // fits [1.0, 0.5, 0.0] → P(high)=2/3, P(mid)=1/3。期待値 200 / 100（標準偏差 約 8）
+  init_rng(7)
+  let pop = ["11111", "10101", "00000"]
+  let fits = [1.0, 0.5, 0.0]
+  let mut mid_count = 0
+  for _ in 0..<300 {
+    if roulette_select(pop, fits) == "10101" {
+      mid_count += 1
+    }
+  }
+  assert_eq(mid_count > 75, true)
+  assert_eq(mid_count < 125, true)
+}
+
+///|
+test "roulette_select: 最小適応度が 0 でなくても、最小の個体は選ばれない（フィットネスシフト）" {
+  // fits [1.0, 0.75, 0.5] → シフト後 [0.5, 0.25, 0.0]
+  init_rng(13)
+  let pop = ["high", "mid", "low"]
+  let fits = [1.0, 0.75, 0.5]
+  let mut low_count = 0
+  let mut mid_count = 0
+  for _ in 0..<300 {
+    let r = roulette_select(pop, fits)
+    if r == "low" {
+      low_count += 1
+    }
+    if r == "mid" {
+      mid_count += 1
+    }
+  }
+  assert_eq(low_count, 0)
+  assert_eq(mid_count > 75, true)
+  assert_eq(mid_count < 125, true)
+}
+
+///|
+test "roulette_select: 全員同適応度なら一様ランダムに選ぶ" {
+  init_rng(17)
+  let pop = ["a", "b", "c"]
+  let fits = [0.6, 0.6, 0.6]
+  let counts = [0, 0, 0]
+  for _ in 0..<300 {
+    let idx = pop.search(roulette_select(pop, fits)).unwrap()
+    counts[idx] = counts[idx] + 1
+  }
+  for c in counts {
+    assert_eq(c > 60, true)
+  }
+}

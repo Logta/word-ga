@@ -225,3 +225,73 @@ test "evolve(roulette): 全適応度ゼロの集団でもクラッシュしな�
   let parts = result.split(sep).map(fn(sv) { sv.to_owned() }).collect()
   assert_eq(parts.length(), 5)
 }
+
+// ─── mutation testing で見つかった未検出ケースの補強 ─────────────────────────
+
+///|
+test "crossover: 子は p1 の接頭辞 + p2 の接尾辞で、交叉点は [0, len) に分布する" {
+  // pt = rand_int(len) ∈ [0, len) なので、子の先頭 pt 文字が p1、残りが p2。
+  // pt < len なので末尾は必ず p2 由来、pt = 0（子 = p2）も起こりうる。
+  init_rng(3)
+  let mut saw_all_p2 = false
+  let mut saw_some_p1 = false
+  for _ in 0..<200 {
+    let child = crossover("11111", "00000").to_array()
+    let mut k = 0
+    while k < 5 && child[k] == '1' {
+      k += 1
+    }
+    for i in k..<5 {
+      assert_eq(child[i], '0')
+    }
+    assert_eq(k < 5, true)
+    if k == 0 {
+      saw_all_p2 = true
+    } else {
+      saw_some_p1 = true
+    }
+  }
+  assert_eq(saw_all_p2, true)
+  assert_eq(saw_some_p1, true)
+}
+
+///|
+test "mutate: 突然変異率 0.03 に見合う頻度でビットが変わる" {
+  // 各ビットは 3% で random_bit() に置き換わり、その半分が実際に反転する（期待値 1.5%）
+  init_rng(11)
+  let n = 2000
+  let ind = String::make(n, '1')
+  let mut flips = 0
+  for c in mutate(ind) {
+    if c == '0' {
+      flips += 1
+    }
+  }
+  // 期待値 30。突然変異しない実装・ほぼ全ビットを書き換える実装を検出する
+  assert_eq(flips > 5, true)
+  assert_eq(flips < 80, true)
+}
+
+///|
+test "evolve: 長さ 1 のターゲットは有効な入力として受け付ける" {
+  init_rng(1)
+  let parts = evolve("0|1", "1", "elite")
+    .split(sep)
+    .map(fn(sv) { sv.to_owned() })
+    .collect()
+  assert_eq(parts.length(), 2)
+  for ind in parts {
+    assert_eq(ind.length(), 1)
+  }
+}
+
+///|
+test "evolve(roulette): pop_size=1でもトラップせず1個体を返す (ADR-019)" {
+  init_rng(42)
+  let parts = evolve("10101", "11111", "roulette")
+    .split(sep)
+    .map(fn(sv) { sv.to_owned() })
+    .collect()
+  assert_eq(parts.length(), 1)
+  assert_eq(parts[0].length(), 5)
+}

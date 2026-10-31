@@ -17,7 +17,7 @@
 | スタイリング | Tailwind CSS v4 |
 | グラフ | chart.js v4 / vue-chartjs v5 |
 | GAコア | MoonBit → wasm-gc (`vite-plugin-moonbit`) |
-| テスト | vitest v4, @vue/test-utils |
+| テスト | vitest v5, @vue/test-utils, Stryker（mutation testing） |
 | Lint / Format | oxlint, oxfmt |
 
 ## GAの仕組み
@@ -107,6 +107,10 @@ mise run moon:test
 
 # MoonBit カバレッジ
 mise run moon:coverage
+
+# mutation testing（重いので手動実行。レポートは reports/ に出力、ADR-022）
+mise run test:mutation   # TS 中核ロジック（Stryker）
+mise run moon:mutation   # MoonBit GA ロジック（簡易スクリプト）
 ```
 
 ### Lint / Format

@@ -7,6 +7,10 @@ describe("calcDiversity", () => {
     expect(calcDiversity(["0000", "0000", "0000"])).toBe(0);
   });
 
+  it("染色体長 0 のときゼロ除算せず 0 を返す", () => {
+    expect(calcDiversity(["", ""])).toBe(0);
+  });
+
   it("個体数 1 のとき 0 を返す", () => {
     expect(calcDiversity(["1010"])).toBe(0);
   });

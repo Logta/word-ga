@@ -15,7 +15,12 @@ mise run moon:setup    # MoonBitツールチェーン導入（未導入時のみ
 mise run moon:build    # moon build --target wasm-gc --release
 mise run moon:test     # moon test --target wasm-gc
 mise run moon:coverage # カバレッジレポート（summary）
+
+mise run test:mutation # TS 中核ロジックの mutation testing（Stryker、Node で実行）
+mise run moon:mutation # MoonBit GA ロジックの簡易 mutation testing（scripts/moonbit-mutation.mjs）
 ```
+
+mutation testing は重いので CI には入れていない。レポートは `reports/`（gitignore 済み）に出る。
 
 `bun run <script>` / `cd moonbit && moon ...` も従来通り直接利用可能（`package.json` scripts はmiseタスクがラップしているだけで置き換えていない）。
 
@@ -41,7 +46,8 @@ mise run moon:coverage # カバレッジレポート（summary）
 009 Bun移行 / 010 PCG乱数 / 011 GitHub Pages / 012 CIワークフロー /
 013 Vue+TSX移行 / 014 差し替え可能な選択戦略 / 015 選択戦略パラメータ文字列化 /
 016 wasm純粋関数・状態管理TS側 / 017 mise中心のツール管理 / 018 依存の一括major更新 /
-019 Wasm API入力契約 / 020 PCG符号拡張修正 / 021 fitness単一ソース化
+019 Wasm API入力契約 / 020 PCG符号拡張修正 / 021 fitness単一ソース化 /
+022 mutation testing（Stryker + MoonBit 簡易スクリプト）
 
 ## コンパクション時に保持すること
 

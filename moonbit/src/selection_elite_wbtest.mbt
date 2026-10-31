@@ -62,3 +62,33 @@ test "elite_select: エリート上位2個体の両方が選ばれうる（定�
   assert_eq(second_count > 0, true)
   assert_eq(first_count + second_count, 100)
 }
+
+///|
+test "elite_select: pop_size=10 では上位 4 体（40%）すべてが選ばれ、5 体目以降は選ばれない" {
+  init_rng(5)
+  let pop = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+  let fits = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
+  let counts = Array::make(10, 0)
+  for _ in 0..<400 {
+    let idx = pop.search(elite_select(pop, fits)).unwrap()
+    counts[idx] = counts[idx] + 1
+  }
+  for i in 0..<4 {
+    assert_eq(counts[i] > 0, true)
+  }
+  for i in 4..<10 {
+    assert_eq(counts[i], 0)
+  }
+}
+
+///|
+test "elite_select: pop_size=4 では最低保証の 2 体だけが選ばれる" {
+  // ec = floor(4 * 0.4) = 1 < 2 → elite_count = 2
+  init_rng(5)
+  let pop = ["a", "b", "c", "d"]
+  let fits = [0.9, 0.6, 0.3, 0.0]
+  for _ in 0..<200 {
+    let r = elite_select(pop, fits)
+    assert_eq(r == "a" || r == "b", true)
+  }
+}

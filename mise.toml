@@ -57,3 +57,13 @@ run = "bun run lint"
 [tasks.fmt]
 description = "oxfmt によるフォーマット"
 run = "bun run fmt"
+
+# mutation testing（重いので CI には入れず手動で回す。レポートは reports/ に出る）
+[tasks."test:mutation"]
+description = "TS 中核ロジックの mutation testing（Stryker。vitest-runner が Bun ランタイムで動かないため Node で実行）"
+tools = { node = "26.13.0" }
+run = "node node_modules/@stryker-mutator/core/bin/stryker.js run"
+
+[tasks."moon:mutation"]
+description = "MoonBit GA ロジックの簡易 mutation testing（演算子・定数を 1 つずつ置換して moon test）"
+run = "bun scripts/moonbit-mutation.mjs"
