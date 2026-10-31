@@ -11,7 +11,7 @@ let pcg_inc : Array[Int64] = [1442695040888963407L] // 奇数固定
 // PCG標準初期化: 状態をゼロリセット → 1ステップ進める → シードを加算 → もう1ステップ進める（ウォームアップ）
 
 ///|
-pub fn init_rng(seed : Int) -> Unit {
+pub fn init_rng(seed : Int32) -> Unit {
   pcg_state[0] = 0L
   let _ = pcg_next32()
   pcg_state[0] = pcg_state[0] + seed.to_int64()
@@ -21,7 +21,7 @@ pub fn init_rng(seed : Int) -> Unit {
 // 32ビット論理右シフト（MoonBit の >> は算術右シフトのため符号ビットをマスク）
 
 ///|
-fn logical_shr32(x : Int, n : Int) -> Int {
+fn logical_shr32(x : Int32, n : Int32) -> Int32 {
   if n == 0 {
     x
   } else {
@@ -33,7 +33,7 @@ fn logical_shr32(x : Int, n : Int) -> Int {
 // 参照: xorshifted = ((old >> 18) ^ old) >> 27（論理シフト）、rot = old >> 59
 
 ///|
-fn pcg_next32() -> Int {
+fn pcg_next32() -> Int32 {
   let old = pcg_state[0]
   pcg_state[0] = old * 6364136223846793005L + pcg_inc[0]
   // Int64 の >> は算術シフトのため、>> 18 の結果を下位46ビットにマスクして
@@ -55,6 +55,6 @@ fn rand_double() -> Double {
 }
 
 ///|
-fn rand_int(limit : Int) -> Int {
+fn rand_int(limit : Int32) -> Int32 {
   logical_shr32(pcg_next32(), 1) % limit
 }
