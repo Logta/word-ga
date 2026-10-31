@@ -12,14 +12,19 @@ runs:
   steps:
     - name: Run MoonBit coverage
       shell: bash
+      # inputs は env 経由で渡し、シェルへのテンプレート展開（コード注入）を避ける
+      env:
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
       run: |
-        cd "${{ inputs.working-directory }}"
+        cd "$WORKING_DIRECTORY"
         moon coverage clean
         moon test --enable-coverage
         moon coverage report -f cobertura
 
     - name: Post PR comment
-      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
       with:
         script: |
           const fs = require('fs');
@@ -27,7 +32,7 @@ runs:
 
           const coberturaPath = path.join(
             process.env.GITHUB_WORKSPACE,
-            '${{ inputs.working-directory }}',
+            process.env.WORKING_DIRECTORY,
             'cobertura.xml',
           );
           const xml = fs.readFileSync(coberturaPath, 'utf8');
