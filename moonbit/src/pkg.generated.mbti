@@ -1,0 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "ga-core/src"
+
+// Values
+pub fn calc_fitness(String, String) -> Double
+
+pub fn evolve(String, String, String) -> String
+
+pub fn init_rng(Int32) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
