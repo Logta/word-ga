@@ -13,7 +13,7 @@ fn roulette_select(pop : Array[String], fits : Array[Double]) -> String {
     }
   }
   // 最小適応度を引いて選択圧を確保
-  let cumulative : Array[Double] = Array::new(capacity=n)
+  let cumulative : Array[Double] = Array(capacity=n)
   let mut total = 0.0
   for f in fits {
     total = total + (f - min_fit)
