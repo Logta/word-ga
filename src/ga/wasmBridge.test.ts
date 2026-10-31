@@ -52,4 +52,35 @@ describe("wasmBridge", () => {
     await initWasm();
     expect(init_rng).toHaveBeenCalledOnce();
   });
+
+  it("wasmEvolve の選択戦略は省略時に elite になる", async () => {
+    vi.resetModules();
+    const evolve = vi.fn().mockReturnValue("0");
+    mocks.init.mockResolvedValueOnce({
+      exports: { calc_fitness: vi.fn(), evolve, init_rng: vi.fn() },
+    });
+    const { initWasm, wasmEvolve } = await import("./wasmBridge");
+    await initWasm();
+    wasmEvolve(["0"], "1");
+    expect(evolve).toHaveBeenCalledWith("0", "1", "elite");
+  });
+
+  it("init_rng のシードは Date.now() と Math.random() * 0x7fffffff の XOR になる", async () => {
+    vi.resetModules();
+    const init_rng = vi.fn();
+    mocks.init.mockResolvedValueOnce({
+      exports: { calc_fitness: vi.fn(), evolve: vi.fn(), init_rng },
+    });
+    const now = vi.spyOn(Date, "now").mockReturnValue(0b1010);
+    const random = vi.spyOn(Math, "random").mockReturnValue(0.5);
+    try {
+      const { initWasm } = await import("./wasmBridge");
+      await initWasm();
+      // floor(0.5 * 0x7fffffff) = 0x3fffffff
+      expect(init_rng).toHaveBeenCalledWith(0x3fff_ffff ^ 0b1010);
+    } finally {
+      now.mockRestore();
+      random.mockRestore();
+    }
+  });
 });

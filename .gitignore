@@ -17,3 +17,7 @@ cobertura.xml
 *.tsbuildinfo
 
 mise.local.toml
+
+# mutation testing の出力
+reports/
+.stryker-tmp/

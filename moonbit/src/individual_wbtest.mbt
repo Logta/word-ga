@@ -36,3 +36,17 @@ test "panic calc_fitness: 空ターゲットはabort" {
 test "panic calc_fitness: 個体長がターゲットと不一致はabort" {
   let _ = calc_fitness("10", "1010")
 }
+
+///|
+test "random_bit: '0' と '1' がほぼ等確率で出る" {
+  init_rng(5)
+  let mut zeros = 0
+  for _ in 0..<1000 {
+    if random_bit() == '0' {
+      zeros += 1
+    }
+  }
+  // 期待値 500（標準偏差 約 16）。片方に偏る実装や 1/3 になる実装を検出する
+  assert_eq(zeros > 420, true)
+  assert_eq(zeros < 580, true)
+}

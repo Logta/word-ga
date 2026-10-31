@@ -30,7 +30,7 @@ describe("charToBin / binToChar", () => {
   });
 
   it("charToBin は未知文字で throw する（黙って補正しない）", () => {
-    expect(() => charToBin("a")).toThrow();
+    expect(() => charToBin("a")).toThrow('charToBin: unsupported character: "a"');
     expect(() => charToBin("1")).toThrow();
     expect(() => charToBin("!")).toThrow();
   });

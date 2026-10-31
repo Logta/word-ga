@@ -22,7 +22,7 @@ describe("initState", () => {
   });
 
   it("空・空白のみのターゲットは throw する (ADR-019)", () => {
-    expect(() => initState("")).toThrow();
+    expect(() => initState("")).toThrow("initState: target must be non-empty");
     expect(() => initState("   ")).toThrow();
   });
 
@@ -111,6 +111,11 @@ describe("stepState", () => {
     expect(next.isRunning).toBe(false);
     expect(next.generation).toBe(0);
     expect(next.history).toHaveLength(1);
+  });
+
+  it("wasm が空の集団を返したら summarize の契約違反として throw する", () => {
+    vi.mocked(wasmBridge.wasmEvolve).mockReturnValueOnce([]);
+    expect(() => stepState(initState("HELLO"))).toThrow("summarize: population must be non-empty");
   });
 
   it("generation を1増やす", () => {
