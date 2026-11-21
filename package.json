@@ -16,9 +16,9 @@
     "postcss": "^8.5.26",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
-    "vite": "^8.2.1",
+    "vite": "^8.3.8",
     "vite-plugin-moonbit": "^0.5.1",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.12"
   },
   "private": true,
   "scripts": {
@@ -36,5 +36,8 @@
     "chart.js": "^4.5.1",
     "vue": "^3.5.41",
     "vue-chartjs": "^5.3.4"
+  },
+  "overrides": {
+    "tinypool": "2.1.2"
   }
 }
